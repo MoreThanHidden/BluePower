@@ -25,10 +25,10 @@ public class PartConverterGate implements IPartConverter {
 
         IPart p = info.create();
 
-        if (!(p instanceof GateBase<?, ?, ?, ?, ?, ?>))
+        if (!(p instanceof GateBase))
             return null;
 
-        GateBase<?, ?, ?, ?, ?, ?> part = (GateBase<?, ?, ?, ?, ?, ?>) p;
+        GateBase part = (GateBase) p;
         NBTTagCompound data = old.getCompoundTag("partData");
         part.readFromNBT(data);
         part.setRotation(data.getInteger("rotation") + 2);

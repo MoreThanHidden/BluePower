@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class WailaProviderMachines implements IWailaDataProvider {
 
-    private List<String> info = new ArrayList<String>();
+    private final List<String> info = new ArrayList<String>();
 
     @Override
     public List<String> getWailaBody(ItemStack item, List<String> tip, IWailaDataAccessor accessor, IWailaConfigHandler config) {

@@ -21,7 +21,7 @@ public abstract class GateComponentCubes extends GateComponent {
 
     private List<Vec3dCube> cubes = new ArrayList<Vec3dCube>();
 
-    public GateComponentCubes(GateBase<?, ?, ?, ?, ?, ?> gate, int color) {
+    public GateComponentCubes(GateBase gate, int color) {
 
         super(gate);
 
@@ -32,7 +32,7 @@ public abstract class GateComponentCubes extends GateComponent {
 
     protected List<Vec3dCube> getCubes() {
 
-        // GateBase<?, ?, ?, ?, ?, ?> ex = getGate().getExample();
+        // GateBase ex = getGate().getExample();
         //
         // if (ex == getGate())
         // return cubes;
@@ -57,6 +57,7 @@ public abstract class GateComponentCubes extends GateComponent {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderStatic(Vec3i translation, RenderHelper renderer, int pass) {
 
         renderer.setColor(getColor());

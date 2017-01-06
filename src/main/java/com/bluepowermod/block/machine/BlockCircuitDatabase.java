@@ -25,11 +25,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import uk.co.qmunity.lib.tile.TileBase;
 
 import com.bluepowermod.helper.ItemStackDatabase;
 import com.bluepowermod.network.BPNetworkHandler;
 import com.bluepowermod.network.message.MessageSendClientServerTemplates;
-import com.bluepowermod.tile.TileBase;
 import com.bluepowermod.tile.tier3.TileCircuitDatabase;
 
 public class BlockCircuitDatabase extends BlockProjectTable {

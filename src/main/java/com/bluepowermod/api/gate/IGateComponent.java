@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface IGateComponent {
 
-    public IGate<?, ?, ?, ?, ?, ?> getGate();
+    public IGate getGate();
 
     public void addCollisionBoxes(List<Vec3dCube> boxes);
 

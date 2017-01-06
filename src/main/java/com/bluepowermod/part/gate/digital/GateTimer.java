@@ -34,7 +34,7 @@ public class GateTimer extends GateSimpleDigital implements IGuiButtonSensitive 
 
     private GateComponentPointer p;
     private GateComponentTorch t;
-    private GateComponentWire w;
+    private GateComponentWire w, wl, wr;
 
     @Override
     public void initializeConnections() {
@@ -56,6 +56,9 @@ public class GateTimer extends GateSimpleDigital implements IGuiButtonSensitive 
         addComponent(new GateComponentWire(this, 0xC600FF, RedwireType.BLUESTONE).bind(back()));
         addComponent(new GateComponentWire(this, 0xFF0000, RedwireType.BLUESTONE).bind(left()));
 
+        addComponent(wl = new GateComponentWire(this, 0xFFAA00, RedwireType.BLUESTONE).bind(left()));
+        addComponent(wr = new GateComponentWire(this, 0x00FFFF, RedwireType.BLUESTONE).bind(right()));
+
         addComponent(new GateComponentBorder(this, 0x7D7D7D));
     }
 
@@ -74,8 +77,8 @@ public class GateTimer extends GateSimpleDigital implements IGuiButtonSensitive 
     @Override
     public void tick() {
 
-        if ((back().getInput() && !front().getOutput()) || (left().getInput() && !left().getOutput())
-                || (right().getInput() && !right().getOutput())) {
+        if ((back().getInput() && !front().getOutput()) || (wl.isEnabled() && left().getInput() && !left().getOutput())
+                || (wr.isEnabled() && right().getInput() && !right().getOutput())) {
             start = -1;
 
             p.setAngle(0);
@@ -119,6 +122,28 @@ public class GateTimer extends GateSimpleDigital implements IGuiButtonSensitive 
 
         p.setAngle((curTime - start) / (double) time);
         p.setIncrement(1 / (double) time);
+    }
+
+    @Override
+    public boolean changeMode() {
+
+        if (!getWorld().isRemote) {
+            if (wl.isEnabled() && wr.isEnabled()) {
+                wl.setEnabled(false);
+                wr.setEnabled(true);
+            } else if (!wl.isEnabled() && wr.isEnabled()) {
+                wl.setEnabled(true);
+                wr.setEnabled(false);
+            } else if (wl.isEnabled() && !wr.isEnabled()) {
+                wl.setEnabled(false);
+                wr.setEnabled(false);
+            } else if (!wl.isEnabled() && !wr.isEnabled()) {
+                wl.setEnabled(true);
+                wr.setEnabled(true);
+            }
+        }
+
+        return true;
     }
 
     @Override
