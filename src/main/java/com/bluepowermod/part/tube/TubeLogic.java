@@ -28,16 +28,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
-import uk.co.qmunity.lib.network.PacketHelper;
-import uk.co.qmunity.lib.part.compat.MultipartCompatibility;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.part.MultipartCompat;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
-
-;
 
 /**
  *
@@ -237,8 +235,7 @@ public class TubeLogic implements IPneumaticTube {
         stack = new TubeStack(extractedItem, result.getKey().getOpposite(), color);
         stack.setTarget(target, dirToRetrieveInto);
 
-        PneumaticTube tube = MultipartCompatibility.getPart(this.tube.getWorld(), result.getValue().getPos().getX() - result.getKey().getFrontOffsetX(),
-                result.getValue().getPos().getY() - result.getKey().getFrontOffsetY(), result.getValue().getPos().getZ() - result.getKey().getFrontOffsetZ(), PneumaticTube.class);
+        PneumaticTube tube = (PneumaticTube) MultipartCompat.getPart(this.tube.getWorld(), result.getValue().getPos().offset(result.getKey().getOpposite()), PneumaticTube.class);
         if (tube == null)
             throw new IllegalArgumentException("wieeeeerd!");
         return tube.getLogic().injectStack(stack, result.getKey().getOpposite(), false);
@@ -408,14 +405,13 @@ public class TubeLogic implements IPneumaticTube {
         roundRobinCounter = tag.getInteger("roundRobinCounter");
     }
 
-    public void writeData(DataOutput buffer) throws IOException {
-
+    public void writeData(MCByteBuf buffer){
         NBTTagCompound tag = new NBTTagCompound();
         writeToNBT(tag);
         PacketHelper.writeNBT(buffer, tag);
     }
 
-    public void readData(DataInput buffer) throws IOException {
+    public void readData(MCByteBuf buffer) {
 
         readFromNBT(PacketHelper.readNBT(buffer));
     }

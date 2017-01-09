@@ -1,25 +1,23 @@
 package com.bluepowermod.api.gate;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import uk.co.qmunity.lib.client.render.RenderHelper;
-import uk.co.qmunity.lib.vec.Vec3dCube;
+import uk.co.qmunity.lib.client.RenderHelper;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.vec.Cuboid;
+import uk.co.qmunity.lib.vec.Vector3;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.List;
 
 public interface IGateComponent {
 
     public IGate getGate();
 
-    public void addCollisionBoxes(List<Vec3dCube> boxes);
+    public void addCollisionBoxes(List<Cuboid> boxes);
 
-    public List<Vec3dCube> getOcclusionBoxes();
+    public List<Cuboid> getOcclusionBoxes();
 
     public void tick();
 
@@ -27,7 +25,7 @@ public interface IGateComponent {
     public void renderStatic(Vec3i translation, RenderHelper renderer, int pass);
 
     @SideOnly(Side.CLIENT)
-    public void renderDynamic(Vec3d translation, double delta, int pass);
+    public void renderDynamic(Vector3 translation, int pass);
 
     public void onLayoutRefresh();
 
@@ -35,9 +33,9 @@ public interface IGateComponent {
 
     public void readFromNBT(NBTTagCompound tag);
 
-    public void writeData(DataOutput buffer) throws IOException;
+    public void writeData(MCByteBuf buffer);
 
-    public void readData(DataInput buffer) throws IOException;
+    public void readData(MCByteBuf buffer);
 
     public boolean needsSyncing();
 }

@@ -22,7 +22,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import java.util.ArrayList;
 import java.util.List;
 
-;
+
 
 public class SlotCircuitTableCrafting extends SlotCrafting {
 

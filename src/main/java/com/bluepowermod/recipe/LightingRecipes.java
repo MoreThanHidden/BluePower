@@ -17,7 +17,6 @@
 
 package com.bluepowermod.recipe;
 
-import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.init.BPBlocks;
 import com.bluepowermod.init.BPItems;
 import com.bluepowermod.part.PartManager;
@@ -28,6 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
+import uk.co.qmunity.lib.util.MinecraftColor;
 
 /**
  * Created by Quetzi on 27/10/14.

@@ -10,7 +10,6 @@ package com.bluepowermod.part.lamp;
 import com.bluepowermod.api.connect.ConnectionType;
 import com.bluepowermod.api.connect.IConnection;
 import com.bluepowermod.api.connect.IConnectionCache;
-import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.api.wire.redstone.IRedstoneDevice;
 import com.bluepowermod.init.BPCreativeTabs;
 import com.bluepowermod.part.BPPartFace;
@@ -20,7 +19,6 @@ import com.bluepowermod.redstone.RedstoneApi;
 import com.bluepowermod.redstone.RedstoneConnectionCache;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -30,24 +28,25 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import uk.co.qmunity.lib.client.render.RenderHelper;
+import uk.co.qmunity.lib.client.RenderHelper;
+import uk.co.qmunity.lib.client.render.RenderContext;
 import uk.co.qmunity.lib.helper.MathHelper;
+import uk.co.qmunity.lib.helper.OcclusionHelper;
 import uk.co.qmunity.lib.helper.RedstoneHelper;
-import uk.co.qmunity.lib.part.IPartRedstone;
+import uk.co.qmunity.lib.model.IVertexConsumer;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.part.IRedstonePart;
 import uk.co.qmunity.lib.part.MicroblockShape;
-import uk.co.qmunity.lib.part.compat.MultipartCompatibility;
-import uk.co.qmunity.lib.part.compat.OcclusionHelper;
+import uk.co.qmunity.lib.part.MultipartCompat;
 import uk.co.qmunity.lib.transform.Rotation;
-import uk.co.qmunity.lib.vec.Vec3dCube;
-import uk.co.qmunity.lib.vec.Vec3dHelper;
+import uk.co.qmunity.lib.util.MinecraftColor;
+import uk.co.qmunity.lib.vec.Cuboid;
+import uk.co.qmunity.lib.vec.Vector3;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-;
+
 
 /**
  * Base class for the lamps that are multiparts.
@@ -55,7 +54,7 @@ import java.util.List;
  * @author Koen Beckers (K4Unl), Amadornes
  *
  */
-public abstract class PartLamp extends BPPartFace implements IPartRedstone, IRedstoneDevice {
+public abstract class PartLamp extends BPPartFace implements IRedstonePart, IRedstoneDevice {
 
     protected final MinecraftColor color;
     protected final boolean inverted;
@@ -97,16 +96,7 @@ public abstract class PartLamp extends BPPartFace implements IPartRedstone, IRed
      * @author amadornes
      */
     @Override
-    public void addCollisionBoxesToList(List<Vec3dCube> boxes, Entity entity) {
-
-        boxes.addAll(getSelectionBoxes());
-    }
-
-    /**
-     * @author amadornes
-     */
-    @Override
-    public List<Vec3dCube> getOcclusionBoxes() {
+    public List<Cuboid> getOcclusionBoxes() {
 
         return getSelectionBoxes();
     }
@@ -116,108 +106,11 @@ public abstract class PartLamp extends BPPartFace implements IPartRedstone, IRed
      */
 
     @Override
-    public List<Vec3dCube> getSelectionBoxes() {
+    public List<Cuboid> getSelectionBoxes() {
 
-        return Arrays.asList(new Vec3dCube(0.0, 0.0, 0.0, 1.0, 1.0, 1.0));
+        return Arrays.asList(new Cuboid(0.0, 0.0, 0.0, 1.0, 1.0, 1.0));
     }
 
-
-    /**
-     * @author Koen Beckers (K4Unl), Amadornes
-     */
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void renderDynamic(Vec3d translation, double delta, int pass) {
-
-        RenderHelper renderer = RenderHelper.instance;
-        renderer.reset();
-
-        switch (getFace().ordinal()) {
-        case 0:
-            break;
-        case 1:
-            renderer.addTransformation(new Rotation(180, 0, 0, Vec3dHelper.CENTER));
-            break;
-        case 2:
-            renderer.addTransformation(new Rotation(90, 0, 0, Vec3dHelper.CENTER));
-            break;
-        case 3:
-            renderer.addTransformation(new Rotation(-90, 0, 0, Vec3dHelper.CENTER));
-            break;
-        case 4:
-            renderer.addTransformation(new Rotation(0, 0, -90, Vec3dHelper.CENTER));
-            break;
-        case 5:
-            renderer.addTransformation(new Rotation(0, 0, 90, Vec3dHelper.CENTER));
-            break;
-        }
-
-        renderGlow(pass);
-
-        renderer.resetTransformations();
-    }
-
-    /**
-     * This render method gets called whenever there's a block update in the chunk. You should use this to remove load from the renderer if a part of
-     * the rendering code doesn't need to get called too often or just doesn't change at all. To call a render update to re-render this just call
-     * {@link com.bluepowermod.part.BPPart#renderStatic(Vec3i loc, RenderHelper renderer, VertexBuffer buffer, int pass)}
-     *
-     * @param loc
-     *            Distance from the player's position
-     * @param pass
-     *            Render pass (0 or 1)
-     * @return Whether or not it rendered something
-     */
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean renderStatic(Vec3i loc, RenderHelper renderer, VertexBuffer buffer, int pass) {
-
-        switch (getFace().ordinal()) {
-        case 0:
-            break;
-        case 1:
-            renderer.addTransformation(new Rotation(180, 0, 0, Vec3dHelper.CENTER));
-            break;
-        case 2:
-            renderer.addTransformation(new Rotation(90, 0, 0, Vec3dHelper.CENTER));
-            break;
-        case 3:
-            renderer.addTransformation(new Rotation(-90, 0, 0, Vec3dHelper.CENTER));
-            break;
-        case 4:
-            renderer.addTransformation(new Rotation(0, 0, -90, Vec3dHelper.CENTER));
-            break;
-        case 5:
-            renderer.addTransformation(new Rotation(0, 0, 90, Vec3dHelper.CENTER));
-            break;
-        }
-
-        // Render base
-        renderLamp(renderer);
-
-        renderer.resetTransformations();
-
-        return true;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean shouldRenderOnPass(int pass) {
-
-        return true;
-    }
-
-    /**
-     * Code to render the base portion of the lamp. Will not be colored
-     *
-     * @author Koen Beckers (K4Unl)
-     * @param renderer
-     */
-    @SideOnly(Side.CLIENT)
-    public void renderLamp(RenderHelper renderer) {
-
-    }
 
     /**
      * Code to render the actual lamp portion of the lamp. Will be colored
@@ -301,7 +194,7 @@ public abstract class PartLamp extends BPPartFace implements IPartRedstone, IRed
             if (con != null) {
                 pow = Math.max(pow, input[d.ordinal()] & 0xFF);
             } else {
-                pow = Math.max(pow, MathHelper.map(RedstoneHelper.getInput(getWorld(), getPos(), d), 0, 15, 0, 255));
+                pow = Math.max(pow, MathHelper.map(RedstoneHelper.getWeakRedstoneInput(getWorld(), getPos(), d), 0, 15, 0, 255));
             }
         }
         power = (byte) pow;
@@ -343,15 +236,13 @@ public abstract class PartLamp extends BPPartFace implements IPartRedstone, IRed
     }
 
     @Override
-    public void writeUpdateData(DataOutput buffer) throws IOException {
-
+    public void writeUpdateData(MCByteBuf buffer) {
         super.writeUpdateData(buffer);
         buffer.writeByte(power);
     }
 
     @Override
-    public void readUpdateData(DataInput buffer) throws IOException {
-
+    public void readUpdateData(MCByteBuf buffer) {
         super.readUpdateData(buffer);
         power = buffer.readByte();
 
@@ -364,10 +255,10 @@ public abstract class PartLamp extends BPPartFace implements IPartRedstone, IRed
 
         BlockPos loc = this.getPos().offset(getFace());
 
-        if (MultipartCompatibility.getPartHolder(getWorld(), loc) != null) {
-            if (MultipartCompatibility.getPart(getWorld(), loc, PartRedwireFreestanding.class) != null)
+        if (MultipartCompat.getHolder(getWorld(), loc) != null) {
+            if (MultipartCompat.getPart(getWorld(), loc, PartRedwireFreestanding.class) != null)
                 return true;
-            PneumaticTube t = MultipartCompatibility.getPart(getWorld(), loc, PneumaticTube.class);
+            PneumaticTube t = (PneumaticTube)MultipartCompat.getPart(getWorld(), loc, PneumaticTube.class);
             if (t != null && t.getRedwireType() != null)
                 return true;
         }

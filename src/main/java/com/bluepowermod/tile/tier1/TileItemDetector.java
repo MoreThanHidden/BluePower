@@ -21,7 +21,7 @@ import net.minecraft.util.NonNullList;
 
 import java.util.List;
 
-;
+
 
 /**
  * @author MineMaarten

@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.NonNullList;
 import uk.co.qmunity.lib.network.annotation.DescSynced;
 import uk.co.qmunity.lib.network.annotation.GuiSynced;
 
@@ -20,13 +20,13 @@ import com.bluepowermod.tile.TileBluePowerBase;
  */
 public class TileChargingBench extends TileBluePowerBase implements IPowered, IInventory {
 
-    private final ItemStack[] inventory = new ItemStack[24];
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(24, ItemStack.EMPTY);
 
     @DescSynced
     private int textureIndex;
 
     @GuiSynced
-    private final IPowerBase powerBase = getPowerHandler(ForgeDirection.UNKNOWN);
+    private final IPowerBase powerBase = getPowerHandler(null);
     private final int powerTransfer = 2;
 
     @GuiSynced
@@ -35,26 +35,26 @@ public class TileChargingBench extends TileBluePowerBase implements IPowered, II
     public static final int MAX_ENERGY_BUFFER = 100;
 
     @Override
-    public void updateEntity() {
+    public void update() {
 
-        super.updateEntity();
+        super.update();
 
-        if (!getWorldObj().isRemote) {
+        if (!getWorld().isRemote) {
             if (isPowered() && energyBuffer < 100) {
                 fillPowerBuffer();
             }
 
-            for (int i = 0; i < inventory.length; i++) {
-                if (inventory[i] != null && inventory[i].getItem() instanceof IRechargeable) {
-                    IRechargeable battery = (IRechargeable) inventory[i].getItem();
-                    energyBuffer -= battery.addEnergy(inventory[i], Math.min((int) PowerConstants.CHARGINGBENCH_CHARGING_TRANSFER, energyBuffer));
+            for (int i = 0; i < inventory.size(); i++) {
+                if (inventory.get(i) != ItemStack.EMPTY && inventory.get(i).getItem() instanceof IRechargeable) {
+                    IRechargeable battery = (IRechargeable) inventory.get(i).getItem();
+                    energyBuffer -= battery.addEnergy(inventory.get(i), Math.min((int) PowerConstants.CHARGINGBENCH_CHARGING_TRANSFER, energyBuffer));
                 }
             }
-            if (worldObj.getWorldTime() % 20 == 0)
+            if (world.getWorldTime() % 20 == 0)
                 recalculateTextureIndex();
         }
 
-        if (worldObj.getWorldTime() % 20 == 0)
+        if (world.getWorldTime() % 20 == 0)
             recalculateTextureIndex();
     }
 
@@ -82,13 +82,18 @@ public class TileChargingBench extends TileBluePowerBase implements IPowered, II
     @Override
     public int getSizeInventory() {
 
-        return inventory.length;
+        return inventory.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return inventory.size() == 0;
     }
 
     @Override
     public ItemStack getStackInSlot(int index) {
 
-        return inventory[index];
+        return inventory.get(index);
     }
 
     @Override
@@ -96,11 +101,11 @@ public class TileChargingBench extends TileBluePowerBase implements IPowered, II
 
         ItemStack itemStack = getStackInSlot(index);
         if (itemStack != null) {
-            if (itemStack.stackSize <= amount) {
+            if (itemStack.getCount() <= amount) {
                 setInventorySlotContents(index, null);
             } else {
                 itemStack = itemStack.splitStack(amount);
-                if (itemStack.stackSize == 0) {
+                if (itemStack.getCount() == 0) {
                     setInventorySlotContents(index, null);
                 }
             }
@@ -110,11 +115,10 @@ public class TileChargingBench extends TileBluePowerBase implements IPowered, II
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int index) {
-
+    public ItemStack removeStackFromSlot(int index) {
         ItemStack itemStack = getStackInSlot(index);
         if (itemStack != null) {
-            setInventorySlotContents(index, null);
+            setInventorySlotContents(index, ItemStack.EMPTY);
         }
         return itemStack;
     }
@@ -122,17 +126,16 @@ public class TileChargingBench extends TileBluePowerBase implements IPowered, II
     @Override
     public void setInventorySlotContents(int index, ItemStack toSet) {
 
-        inventory[index] = toSet;
+        inventory.set(index, toSet);
     }
 
     @Override
-    public String getInventoryName() {
-
+    public String getName() {
         return BPBlocks.chargingBench.getUnlocalizedName();
     }
 
     @Override
-    public boolean hasCustomInventoryName() {
+    public boolean hasCustomName() {
 
         return true;
     }
@@ -144,25 +147,45 @@ public class TileChargingBench extends TileBluePowerBase implements IPowered, II
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer p_70300_1_) {
-
+    public boolean isUsableByPlayer(EntityPlayer player) {
         return true;
     }
 
     @Override
-    public void openInventory() {
+    public void openInventory(EntityPlayer player) {
 
     }
 
     @Override
-    public void closeInventory() {
+    public void closeInventory(EntityPlayer player) {
 
     }
+
 
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack itemToTest) {
 
         return itemToTest != null && itemToTest.getItem() instanceof IRechargeable;
+    }
+
+    @Override
+    public int getField(int id) {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) {
+
+    }
+
+    @Override
+    public int getFieldCount() {
+        return 0;
+    }
+
+    @Override
+    public void clear() {
+
     }
 
     /**
@@ -175,7 +198,7 @@ public class TileChargingBench extends TileBluePowerBase implements IPowered, II
 
         for (int i = 0; i < 24; i++) {
             NBTTagCompound tc = tCompound.getCompoundTag("inventory" + i);
-            inventory[i] = ItemStack.loadItemStackFromNBT(tc);
+            inventory.set(i, new ItemStack(tc));
         }
         energyBuffer = tCompound.getInteger("energyBuffer");
     }
@@ -184,14 +207,14 @@ public class TileChargingBench extends TileBluePowerBase implements IPowered, II
      * This function gets called whenever the world/chunk is saved
      */
     @Override
-    public void writeToNBT(NBTTagCompound tCompound) {
+    public NBTTagCompound writeToNBT(NBTTagCompound tCompound) {
 
         super.writeToNBT(tCompound);
 
         for (int i = 0; i < 24; i++) {
-            if (inventory[i] != null) {
+            if (inventory.get(i) != ItemStack.EMPTY) {
                 NBTTagCompound tc = new NBTTagCompound();
-                inventory[i].writeToNBT(tc);
+                inventory.get(i).writeToNBT(tc);
                 tCompound.setTag("inventory" + i, tc);
             }
         }

@@ -4,7 +4,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.common.util.EnumFacing;
 
 import com.bluepowermod.block.BlockContainerBase;
 import com.bluepowermod.client.render.RenderChargingBench;
@@ -40,11 +40,11 @@ public class BlockChargingBench extends BlockContainerBase {
     public IIcon getIcon(IBlockAccess world, int x, int y, int z, int side) {
 
         TileChargingBench te = (TileChargingBench) world.getTileEntity(x, y, z);
-        ForgeDirection forgeSide = ForgeDirection.getOrientation(side);
-        if (forgeSide == ForgeDirection.UP) {
+        EnumFacing forgeSide = EnumFacing.getOrientation(side);
+        if (forgeSide == EnumFacing.UP) {
             return te.isPowered() ? textureTop_On : textureTop_Off;
         }
-        if (forgeSide == ForgeDirection.DOWN)
+        if (forgeSide == EnumFacing.DOWN)
             return textureBottom;
         if (forgeSide.equals(te.getFacingDirection())) {
             return te.isPowered() ? textureFront_On[te.getTextureIndex()] : textureFront_Off[te.getTextureIndex()];
@@ -59,7 +59,7 @@ public class BlockChargingBench extends BlockContainerBase {
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
 
-        ForgeDirection s = ForgeDirection.getOrientation(side);
+        EnumFacing s = EnumFacing.getOrientation(side);
         if (side == 3) {
             return textureFront_Off[0];
         }

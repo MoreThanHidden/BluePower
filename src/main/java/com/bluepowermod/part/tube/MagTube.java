@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
-import uk.co.qmunity.lib.vec.Vec3dCube;
+import uk.co.qmunity.lib.vec.Cuboid;
 
 import java.util.List;
 
@@ -52,21 +52,19 @@ public class MagTube extends PneumaticTube {
     }
 
     @Override
-    public List<Vec3dCube> getSelectionBoxes() {
+    public List<Cuboid> getSelectionBoxes() {
 
-        List<Vec3dCube> aabbs = super.getSelectionBoxes();
-        if (!shouldRenderNode()) {
+        List<Cuboid> aabbs = super.getSelectionBoxes();
             if (connections[0]) {
-                aabbs.add(new Vec3dCube(2 / 16D, 2 / 16D, 2 / 16D, 14 / 16D, 6 / 16D, 14 / 16D));
-                aabbs.add(new Vec3dCube(2 / 16D, 10 / 16D, 2 / 16D, 14 / 16D, 14 / 16D, 14 / 16D));
+                aabbs.add(new Cuboid(2 / 16D, 2 / 16D, 2 / 16D, 14 / 16D, 6 / 16D, 14 / 16D));
+                aabbs.add(new Cuboid(2 / 16D, 10 / 16D, 2 / 16D, 14 / 16D, 14 / 16D, 14 / 16D));
             } else if (connections[2]) {
-                aabbs.add(new Vec3dCube(2 / 16D, 2 / 16D, 2 / 16D, 14 / 16D, 14 / 16D, 6 / 16D));
-                aabbs.add(new Vec3dCube(2 / 16D, 2 / 16D, 10 / 16D, 14 / 16D, 14 / 16D, 14 / 16D));
+                aabbs.add(new Cuboid(2 / 16D, 2 / 16D, 2 / 16D, 14 / 16D, 14 / 16D, 6 / 16D));
+                aabbs.add(new Cuboid(2 / 16D, 2 / 16D, 10 / 16D, 14 / 16D, 14 / 16D, 14 / 16D));
             } else if (connections[4]) {
-                aabbs.add(new Vec3dCube(2 / 16D, 2 / 16D, 2 / 16D, 6 / 16D, 14 / 16D, 14 / 16D));
-                aabbs.add(new Vec3dCube(10 / 16D, 2 / 16D, 2 / 16D, 14 / 16D, 14 / 16D, 14 / 16D));
+                aabbs.add(new Cuboid(2 / 16D, 2 / 16D, 2 / 16D, 6 / 16D, 14 / 16D, 14 / 16D));
+                aabbs.add(new Cuboid(10 / 16D, 2 / 16D, 2 / 16D, 14 / 16D, 14 / 16D, 14 / 16D));
             }
-        }
         return aabbs;
     }
 

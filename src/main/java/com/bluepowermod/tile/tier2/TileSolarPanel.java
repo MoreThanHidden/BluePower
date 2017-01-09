@@ -2,7 +2,7 @@ package com.bluepowermod.tile.tier2;
 
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.common.util.EnumFacing;
 
 import com.bluepowermod.api.connect.ConnectionType;
 import com.bluepowermod.api.misc.IFace;
@@ -16,28 +16,28 @@ import com.bluepowermod.tile.TileMachineBase;
 public class TileSolarPanel extends TileMachineBase implements IPowered, IFace {
 
     @Override
-    public ForgeDirection getFace() {
+    public EnumFacing getFace() {
 
-        return ForgeDirection.DOWN;
+        return EnumFacing.DOWN;
     }
 
     @Override
-    public boolean canConnectPower(ForgeDirection side, IPowered dev, ConnectionType type) {
+    public boolean canConnectPower(EnumFacing side, IPowered dev, ConnectionType type) {
 
-        if (side == ForgeDirection.UP)
+        if (side == EnumFacing.UP)
             return false;
-        if (type == ConnectionType.OPEN_CORNER && side == ForgeDirection.DOWN)
+        if (type == ConnectionType.OPEN_CORNER && side == EnumFacing.DOWN)
             return false;
-        if (dev instanceof IFace && type == ConnectionType.OPEN_CORNER && dev.getY() == getY() && ((IFace) dev).getFace() != ForgeDirection.DOWN)
+        if (dev instanceof IFace && type == ConnectionType.OPEN_CORNER && dev.getY() == getY() && ((IFace) dev).getFace() != EnumFacing.DOWN)
             return false;
 
         return true;
     }
 
     @Override
-    public boolean isNormalFace(ForgeDirection side) {
+    public boolean isNormalFace(EnumFacing side) {
 
-        return side == ForgeDirection.DOWN;
+        return side == EnumFacing.DOWN;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class TileSolarPanel extends TileMachineBase implements IPowered, IFace {
 
         double addedEnergy = getDaylightStrength() * PowerConstants.SOLAR_PANEL_MULTIPLIER;
         if (!getWorldObj().isRemote) {
-            getPowerHandler(ForgeDirection.UNKNOWN).addEnergy(addedEnergy, false);
+            getPowerHandler(EnumFacing.UNKNOWN).addEnergy(addedEnergy, false);
         }
 
     }

@@ -16,6 +16,9 @@ import com.bluepowermod.event.BPEventHandler;
 import com.bluepowermod.init.*;
 import com.bluepowermod.network.BPNetworkHandler;
 import com.bluepowermod.part.PartManager;
+import com.bluepowermod.power.PowerApi;
+import com.bluepowermod.power.PoweredDeviceProviderQmunityLib;
+import com.bluepowermod.power.PoweredDeviceProviderVanilla;
 import com.bluepowermod.recipe.AlloyFurnaceRegistry;
 import com.bluepowermod.redstone.RedstoneApi;
 import com.bluepowermod.redstone.RedstoneProviderQmunityLib;
@@ -76,7 +79,7 @@ public class BluePower {
         MinecraftForge.EVENT_BUS.register(new WorldConversionEventHandler());
 
         RedstoneApi.getInstance().registerRedstoneProvider(new RedstoneProviderQmunityLib());
-
+        PowerApi.getInstance().registerPoweredDeviceProvider(new PoweredDeviceProviderQmunityLib());
         PartManager.registerParts();
 
         BPBlocks.init();
@@ -112,6 +115,7 @@ public class BluePower {
         AlloyFurnaceRegistry.getInstance().generateRecyclingRecipes();
 
         RedstoneApi.getInstance().registerRedstoneProvider(new RedstoneProviderVanilla());
+        PowerApi.getInstance().registerPoweredDeviceProvider(new PoweredDeviceProviderVanilla());
     }
 
     @Mod.EventHandler

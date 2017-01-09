@@ -31,17 +31,10 @@ public class BPNetworkHandler {
 
         INSTANCE.registerPacket(MessageGuiUpdate.class, MessageGuiUpdate.class, Side.SERVER);
         INSTANCE.registerPacket(MessageUpdateTextfield.class, MessageUpdateTextfield.class, Side.SERVER);
-        INSTANCE.registerPacket(MessageCircuitDatabaseTemplate.class, MessageCircuitDatabaseTemplate.class, Side.SERVER);
-        INSTANCE.registerPacket(MessageCircuitDatabaseTemplate.class, MessageCircuitDatabaseTemplate.class, Side.CLIENT);
         INSTANCE.registerPacket(MessageDebugBlock.class, MessageDebugBlock.class, Side.CLIENT);
         INSTANCE.registerPacket(MessageSendClientServerTemplates.class, MessageSendClientServerTemplates.class, Side.CLIENT);
         INSTANCE.registerPacket(MessageRedirectTubeStack.class, MessageRedirectTubeStack.class, Side.CLIENT);
         INSTANCE.registerPacket(MessageServerTickTime.class, Side.CLIENT);
-
-        INSTANCE.registerPacket(MessageWirelessNewFreq.class, MessageWirelessNewFreq.class, Side.SERVER);
-        INSTANCE.registerPacket(MessageWirelessSaveFreq.class, MessageWirelessSaveFreq.class, Side.SERVER);
-        INSTANCE.registerPacket(MessageWirelessFrequencySync.class, MessageWirelessFrequencySync.class, Side.CLIENT);
-        INSTANCE.registerPacket(MessageWirelessRemoveFreq.class, MessageWirelessRemoveFreq.class, Side.SERVER);
 
         INSTANCE.registerPacket(MessageSyncMachineBacklog.class, MessageSyncMachineBacklog.class, Side.CLIENT);
     }

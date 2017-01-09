@@ -3,10 +3,9 @@ package com.bluepowermod.api.gate;
 import com.bluepowermod.api.wire.redstone.IBundledDevice;
 import com.bluepowermod.api.wire.redstone.IRedstoneDevice;
 import net.minecraft.nbt.NBTTagCompound;
+import uk.co.qmunity.lib.network.MCByteBuf;
 import uk.co.qmunity.lib.util.Dir;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
 
 public interface IGateConnection {
@@ -37,9 +36,9 @@ public interface IGateConnection {
 
     public void readFromNBT(NBTTagCompound tag);
 
-    public void writeData(DataOutput buffer) throws IOException;
+    public void writeData(MCByteBuf buffer) throws IOException;
 
-    public void readData(DataInput buffer) throws IOException;
+    public void readData(MCByteBuf buffer) throws IOException;
 
     public boolean canConnectRedstone();
 

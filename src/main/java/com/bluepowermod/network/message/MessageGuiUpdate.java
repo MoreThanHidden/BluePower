@@ -9,15 +9,13 @@ package com.bluepowermod.network.message;
 
 import com.bluepowermod.BluePower;
 import com.bluepowermod.part.IGuiButtonSensitive;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import uk.co.qmunity.lib.network.LocatedPacket;
-import uk.co.qmunity.lib.part.IPart;
-import uk.co.qmunity.lib.part.ITilePartHolder;
-import uk.co.qmunity.lib.part.compat.MultipartCompatibility;
-
-import java.util.List;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.part.IPartHolder;
+import uk.co.qmunity.lib.part.IQLPart;
+import uk.co.qmunity.lib.part.MultipartCompat;
 
 /**
  *
@@ -26,7 +24,7 @@ import java.util.List;
 
 public class MessageGuiUpdate extends LocatedPacket<MessageGuiUpdate> {
 
-    private int partId;
+    private String partId;
     private int icId; // only used with the Integrated Circuit
     private int messageId;
     private int value;
@@ -42,7 +40,7 @@ public class MessageGuiUpdate extends LocatedPacket<MessageGuiUpdate> {
      * @param messageId
      * @param value
      */
-    public MessageGuiUpdate(IPart part, int messageId, int value) {
+    public MessageGuiUpdate(IQLPart part, int messageId, int value) {
 
         super(part.getPos());
 
@@ -51,7 +49,7 @@ public class MessageGuiUpdate extends LocatedPacket<MessageGuiUpdate> {
         // part = ((GateBase) part).parentCircuit;
         // }
         partId = getPartId(part);
-        if (partId == -1)
+        if (partId.equals("-1"))
             BluePower.log.warn("[MessageGuiUpdate] BPPart couldn't be found");
 
         this.messageId = messageId;
@@ -61,33 +59,31 @@ public class MessageGuiUpdate extends LocatedPacket<MessageGuiUpdate> {
     public MessageGuiUpdate(TileEntity tile, int messageId, int value) {
 
         super(tile.getPos());
-        partId = -1;
+        partId = "-1";
         this.messageId = messageId;
         this.value = value;
     }
 
-    private int getPartId(IPart part) {
-
-        List<IPart> parts = MultipartCompatibility.getPartHolder(part.getWorld(), part.getPos()).getParts();
-        return parts.indexOf(part);
+    private String getPartId(IQLPart part) {
+        return (MultipartCompat.getHolder(part.getWorld(), part.getPos()).getPartID(part));
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(MCByteBuf buf) {
 
         super.toBytes(buf);
         buf.writeInt(messageId);
-        buf.writeInt(partId);
+        buf.writeString(partId);
         buf.writeInt(value);
         buf.writeInt(icId);
     }
 
     @Override
-    public void fromBytes(ByteBuf buf) {
+    public void fromBytes(MCByteBuf  buf) {
 
         super.fromBytes(buf);
         messageId = buf.readInt();
-        partId = buf.readInt();
+        partId = buf.readString();
         value = buf.readInt();
         icId = buf.readInt();
     }
@@ -100,7 +96,7 @@ public class MessageGuiUpdate extends LocatedPacket<MessageGuiUpdate> {
     @Override
     public void handleServerSide(EntityPlayer player) {
 
-        ITilePartHolder partHolder = MultipartCompatibility.getPartHolder(player.world, pos);
+        IPartHolder partHolder = MultipartCompat.getHolder(player.world, pos);
         if (partHolder != null) {
             messagePart(player, partHolder);
         } else {
@@ -111,11 +107,9 @@ public class MessageGuiUpdate extends LocatedPacket<MessageGuiUpdate> {
         }
     }
 
-    private void messagePart(EntityPlayer player, ITilePartHolder partHolder) {
+    private void messagePart(EntityPlayer player, IPartHolder partHolder) {
 
-        List<IPart> parts = partHolder.getParts();
-        if (partId < parts.size()) {
-            IPart part = parts.get(partId);
+            IQLPart part = partHolder.findPart(partId);
             // IntegratedCircuit circuit = null;
             // if (part instanceof IntegratedCircuit) {
             // circuit = (IntegratedCircuit) part;
@@ -128,6 +122,5 @@ public class MessageGuiUpdate extends LocatedPacket<MessageGuiUpdate> {
             } else {
                 BluePower.log.error("[BluePower][MessageGuiPacket] Part doesn't implement IGuiButtonSensitive");
             }
-        }
     }
 }

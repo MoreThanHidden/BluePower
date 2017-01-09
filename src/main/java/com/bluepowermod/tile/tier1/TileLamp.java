@@ -8,7 +8,6 @@
 package com.bluepowermod.tile.tier1;
 
 import com.bluepowermod.api.connect.ConnectionType;
-import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.api.wire.redstone.IBundledDevice;
 import com.bluepowermod.api.wire.redstone.IInsulatedRedstoneDevice;
 import com.bluepowermod.block.machine.BlockLamp;
@@ -24,8 +23,7 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import uk.co.qmunity.lib.helper.MathHelper;
 import uk.co.qmunity.lib.helper.RedstoneHelper;
-
-;
+import uk.co.qmunity.lib.util.MinecraftColor;
 
 /**
  * @author Koen Beckers (K4Unl) and Amadornes. Yes. I only need this class to do the getPower() function.. damn :(
@@ -67,7 +65,7 @@ public class TileLamp extends TileBase implements IBundledDevice {
             power = (int) ((pow / 256D) * 15);
             sendUpdatePacket();
         } else {
-            int pow = RedstoneHelper.getInput(getWorld(), pos);
+            int pow = RedstoneHelper.getWeakRedstoneInput(getWorld(), pos);
             if (pow != power) {
                 power = pow;
                 sendUpdatePacket();

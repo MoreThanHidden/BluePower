@@ -1,19 +1,18 @@
 package com.bluepowermod.power;
 
-import net.minecraftforge.common.util.ForgeDirection;
-
 import com.bluepowermod.api.connect.ConnectionType;
 import com.bluepowermod.api.connect.IConnection;
 import com.bluepowermod.api.power.IPowerBase;
+import net.minecraft.util.EnumFacing;
 
 public class PowerConnection implements IConnection<IPowerBase> {
 
     private IPowerBase a, b;
-    private ForgeDirection sideA, sideB;
+    private EnumFacing sideA, sideB;
     private ConnectionType type;
     private IConnection<IPowerBase> complementary;
 
-    public PowerConnection(IPowerBase a, IPowerBase b, ForgeDirection sideA, ForgeDirection sideB, ConnectionType type) {
+    public PowerConnection(IPowerBase a, IPowerBase b, EnumFacing sideA, EnumFacing sideB, ConnectionType type) {
 
         this.a = a;
         this.b = b;
@@ -22,7 +21,7 @@ public class PowerConnection implements IConnection<IPowerBase> {
         this.type = type;
     }
 
-    public PowerConnection(IPowerBase a, IPowerBase b, ForgeDirection sideA, ForgeDirection sideB, ConnectionType type,
+    public PowerConnection(IPowerBase a, IPowerBase b, EnumFacing sideA, EnumFacing sideB, ConnectionType type,
             IConnection<IPowerBase> complementary) {
 
         this(a, b, sideA, sideB, type);
@@ -42,13 +41,13 @@ public class PowerConnection implements IConnection<IPowerBase> {
     }
 
     @Override
-    public ForgeDirection getSideA() {
+    public EnumFacing getSideA() {
 
         return sideA;
     }
 
     @Override
-    public ForgeDirection getSideB() {
+    public EnumFacing getSideB() {
 
         return sideB;
     }

@@ -1,15 +1,12 @@
 package com.bluepowermod.tile;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
-import uk.co.qmunity.lib.network.annotation.DescSynced;
-import uk.co.qmunity.lib.tile.IRotatable;
-import uk.co.qmunity.lib.tile.TileBase;
-
 import com.bluepowermod.api.BPApi;
 import com.bluepowermod.api.connect.ConnectionType;
 import com.bluepowermod.api.power.IPowerBase;
 import com.bluepowermod.api.power.IPowered;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import uk.co.qmunity.lib.network.annotation.DescSynced;
 
 public class TileBluePowerBase extends TileBase implements IRotatable {
     private IPowerBase handler;
@@ -22,12 +19,12 @@ public class TileBluePowerBase extends TileBase implements IRotatable {
     }
 
     @Override
-    public void updateEntity() {
-        super.updateEntity();
-        if (!getWorldObj().isRemote && handler != null) {
+    public void update() {
+        super.update();
+        if (!getWorld().isRemote && handler != null) {
 
             handler.update();
-            if (worldObj.getWorldTime() % 20 == 0) {
+            if (world.getWorldTime() % 20 == 0) {
                 isPowered = handler.getVoltage() >= handler.getMaxVoltage() * 0.8;
             }
         }
@@ -37,17 +34,17 @@ public class TileBluePowerBase extends TileBase implements IRotatable {
         return isPowered;
     }
 
-    public IPowerBase getPowerHandler(ForgeDirection side) {
+    public IPowerBase getPowerHandler(EnumFacing side) {
 
         return handler;
     }
 
-    public boolean canConnectPower(ForgeDirection side, IPowered dev, ConnectionType type) {
+    public boolean canConnectPower(EnumFacing side, IPowered dev, ConnectionType type) {
 
         return true;
     }
 
-    public boolean isNormalFace(ForgeDirection side) {
+    public boolean isNormalFace(EnumFacing side) {
 
         return true;
     }
@@ -61,11 +58,12 @@ public class TileBluePowerBase extends TileBase implements IRotatable {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tagCompound) {
+    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
 
         super.writeToNBT(tagCompound);
         if (handler != null)
             handler.writeToNBT(tagCompound);
+        return tagCompound;
     }
 
     @Override
@@ -77,9 +75,8 @@ public class TileBluePowerBase extends TileBase implements IRotatable {
     }
 
     @Override
-    public void onNeighborBlockChanged() {
-
-        super.onNeighborBlockChanged();
+    public void onBlockNeighbourChanged() {
+        super.onBlockNeighbourChanged();
         if (handler != null)
             handler.onNeighborUpdate();
     }

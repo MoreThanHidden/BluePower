@@ -4,7 +4,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-;
+
 
 public interface IRedstoneProvider {
 
@@ -28,12 +28,8 @@ public interface IRedstoneProvider {
      *
      * @param world
      *            The world where the device is
-     * @param x
-     *            X coordinate of the device
-     * @param y
-     *            Y coordinate of the device
-     * @param z
-     *            Z coordinate of the device
+     * @param pos
+     *            Coordinate of the device
      * @param side
      *            Side of the device we're looking for
      * @param face

@@ -2,31 +2,30 @@ package com.bluepowermod.part;
 
 import com.bluepowermod.api.item.IDatabaseSaveable;
 import net.minecraft.block.SoundType;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import uk.co.qmunity.lib.client.render.RenderHelper;
-import uk.co.qmunity.lib.part.*;
+import uk.co.qmunity.lib.client.render.RenderContext;
+import uk.co.qmunity.lib.model.IVertexConsumer;
+import uk.co.qmunity.lib.part.IOccludingPart;
+import uk.co.qmunity.lib.part.IQLPart;
+import uk.co.qmunity.lib.part.IWailaProviderPart;
+import uk.co.qmunity.lib.part.QLPart;
 import uk.co.qmunity.lib.raytrace.QRayTraceResult;
-import uk.co.qmunity.lib.raytrace.RayTracer;
-import uk.co.qmunity.lib.vec.Vec3dCube;
+import uk.co.qmunity.lib.vec.Cuboid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class BPPart extends PartBase implements IPartSelectable, IPartCollidable, IPartOccluding, IPartUpdateListener,
-        IPartInteractable, IDatabaseSaveable, IPartWAILAProvider {
+public abstract class BPPart extends QLPart implements IOccludingPart,  IDatabaseSaveable, IWailaProviderPart{
 
 
     @Override
@@ -52,50 +51,36 @@ public abstract class BPPart extends PartBase implements IPartSelectable, IPartC
     private PartInfo partInfo;
 
     @Override
-    public ItemStack getItem() {
+    public boolean renderBreaking(RenderContext context, IVertexConsumer consumer, QRayTraceResult hit, TextureAtlasSprite overrideIcon) {
+        return renderStatic(context, consumer, 0);
+    }
 
+    @Override
+    public List<Cuboid> getOcclusionBoxes() {
+
+        return new ArrayList<Cuboid>();
+    }
+
+    @Override
+    public List<Cuboid> getSelectionBoxes() {
+
+        return new ArrayList<Cuboid>();
+    }
+
+    @Override
+    public ItemStack getPickBlock(EntityPlayer player, QRayTraceResult hit) {
         if (partInfo == null)
             partInfo = PartManager.getPartInfo(getType());
 
         return partInfo.getStack();
     }
 
-    @Override
-    public boolean renderBreaking(Vec3i translation, RenderHelper renderer, VertexBuffer buffer, int pass, QRayTraceResult mop) {
-        return renderStatic(translation, renderer, buffer, pass);
+    public List<ItemStack> getSubItems() {
+        return Arrays.asList(getPickBlock(null, null));
     }
 
     @Override
-    public List<Vec3dCube> getOcclusionBoxes() {
-
-        return new ArrayList<Vec3dCube>();
-    }
-
-    @Override
-    public void addCollisionBoxesToList(List<Vec3dCube> boxes, Entity entity) {
-
-    }
-
-    @Override
-    public QRayTraceResult rayTrace(Vec3d start, Vec3d end) {
-
-        return RayTracer.instance().rayTraceCubes(this, start, end);
-    }
-
-    @Override
-    public List<Vec3dCube> getSelectionBoxes() {
-
-        return new ArrayList<Vec3dCube>();
-    }
-
-    @Override
-    public ItemStack getPickedItem(QRayTraceResult mop) {
-
-        return getItem();
-    }
-
-    @Override
-    public void onPartChanged(IPart part) {
+    public void onPartChanged(IQLPart part) {
 
         if (getWorld() != null && !getWorld().isRemote)
             onUpdate();
@@ -206,11 +191,6 @@ public abstract class BPPart extends PartBase implements IPartSelectable, IPartC
     @SideOnly(Side.CLIENT)
     public void addTooltip(ItemStack item, List<String> tip) {
 
-    }
-
-    public List<ItemStack> getSubItems() {
-
-        return Arrays.asList(getItem());
     }
 
     @SideOnly(Side.CLIENT)

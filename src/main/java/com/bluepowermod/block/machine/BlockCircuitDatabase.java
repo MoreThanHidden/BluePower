@@ -17,24 +17,22 @@
 
 package com.bluepowermod.block.machine;
 
+import com.bluepowermod.helper.ItemStackDatabase;
+import com.bluepowermod.network.BPNetworkHandler;
+import com.bluepowermod.network.message.MessageSendClientServerTemplates;
+import com.bluepowermod.tile.tier3.TileCircuitDatabase;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import uk.co.qmunity.lib.tile.TileBase;
-
-import com.bluepowermod.helper.ItemStackDatabase;
-import com.bluepowermod.network.BPNetworkHandler;
-import com.bluepowermod.network.message.MessageSendClientServerTemplates;
-import com.bluepowermod.tile.tier3.TileCircuitDatabase;
+import uk.co.qmunity.lib.tile.QLTileBase;
 
 public class BlockCircuitDatabase extends BlockProjectTable {
 
-    public BlockCircuitDatabase(Class<? extends TileBase> tileClass) {
+    public BlockCircuitDatabase(Class<? extends QLTileBase> tileClass) {
 
         super(tileClass);
     }

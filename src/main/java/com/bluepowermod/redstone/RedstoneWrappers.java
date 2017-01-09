@@ -1,10 +1,5 @@
 package com.bluepowermod.redstone;
 
-import java.util.Collection;
-
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-
 import com.bluepowermod.api.connect.ConnectionType;
 import com.bluepowermod.api.connect.IConnection;
 import com.bluepowermod.api.connect.IConnectionCache;
@@ -13,10 +8,16 @@ import com.bluepowermod.api.wire.redstone.IRedConductor;
 import com.bluepowermod.api.wire.redstone.IRedstoneConductor;
 import com.bluepowermod.api.wire.redstone.IRedstoneConductor.IAdvancedRedstoneConductor;
 import com.bluepowermod.api.wire.redstone.IRedstoneDevice;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
+import java.util.Collection;
+import java.util.Map;
 
 public class RedstoneWrappers {
 
-    public static IRedstoneDevice wrap(IRedstoneDevice dev, ForgeDirection face) {
+    public static IRedstoneDevice wrap(IRedstoneDevice dev, EnumFacing face) {
 
         if (dev instanceof IAdvancedRedstoneConductor)
             return new AdvancedRedstoneConductorWrapper((IAdvancedRedstoneConductor) dev, face);
@@ -26,22 +27,22 @@ public class RedstoneWrappers {
             return new RedstoneDeviceWrapper(dev, face);
     }
 
-    private static ForgeDirection computeDirection(Object obj, ForgeDirection dir) {
+    private static EnumFacing computeDirection(Object obj, EnumFacing dir) {
 
-        ForgeDirection face = obj instanceof IFace ? ((IFace) obj).getFace() : ForgeDirection.UNKNOWN;
+        EnumFacing face = obj instanceof IFace ? ((IFace) obj).getFace() : null;
 
-        if (face == ForgeDirection.UNKNOWN || face == ForgeDirection.DOWN)
+        if (face == null || face == EnumFacing.DOWN)
             return dir;
 
-        return dir;// ForgeDirection.UNKNOWN;
+        return dir;// EnumFacing.UNKNOWN;
     }
 
     private static class RedstoneDeviceWrapper implements IRedstoneDevice, IFace {
 
         protected IRedstoneDevice dev;
-        protected ForgeDirection face;
+        protected EnumFacing face;
 
-        public RedstoneDeviceWrapper(IRedstoneDevice dev, ForgeDirection face) {
+        public RedstoneDeviceWrapper(IRedstoneDevice dev, EnumFacing face) {
 
             this.dev = dev;
             this.face = face;
@@ -54,31 +55,19 @@ public class RedstoneWrappers {
         }
 
         @Override
-        public int getX() {
+        public BlockPos getPos() {
 
-            return dev.getX();
+            return dev.getPos();
         }
 
         @Override
-        public int getY() {
-
-            return dev.getY();
-        }
-
-        @Override
-        public int getZ() {
-
-            return dev.getZ();
-        }
-
-        @Override
-        public ForgeDirection getFace() {
+        public EnumFacing getFace() {
 
             return face;
         }
 
         @Override
-        public boolean canConnect(ForgeDirection side, IRedstoneDevice dev, ConnectionType type) {
+        public boolean canConnect(EnumFacing side, IRedstoneDevice dev, ConnectionType type) {
 
             return dev.canConnect(computeDirection(dev, side), dev, type);
         }
@@ -90,13 +79,13 @@ public class RedstoneWrappers {
         }
 
         @Override
-        public byte getRedstonePower(ForgeDirection side) {
+        public byte getRedstonePower(EnumFacing side) {
 
             return dev.getRedstonePower(computeDirection(dev, side));
         }
 
         @Override
-        public void setRedstonePower(ForgeDirection side, byte power) {
+        public void setRedstonePower(EnumFacing side, byte power) {
 
             dev.setRedstonePower(computeDirection(dev, side), power);
         }
@@ -108,7 +97,7 @@ public class RedstoneWrappers {
         }
 
         @Override
-        public boolean isNormalFace(ForgeDirection side) {
+        public boolean isNormalFace(EnumFacing side) {
 
             return dev.isNormalFace(computeDirection(dev, side));
         }
@@ -117,25 +106,25 @@ public class RedstoneWrappers {
 
     private static class RedstoneConductorWrapper extends RedstoneDeviceWrapper implements IRedstoneConductor {
 
-        public RedstoneConductorWrapper(IRedstoneConductor dev, ForgeDirection face) {
+        public RedstoneConductorWrapper(IRedstoneConductor dev, EnumFacing face) {
 
             super(dev, face);
         }
 
         @Override
-        public boolean hasLoss(ForgeDirection side) {
+        public boolean hasLoss(EnumFacing side) {
 
             return ((IRedConductor) dev).hasLoss(computeDirection(dev, side));
         }
 
         @Override
-        public boolean isAnalogue(ForgeDirection side) {
+        public boolean isAnalogue(EnumFacing side) {
 
             return ((IRedConductor) dev).isAnalogue(computeDirection(dev, side));
         }
 
         @Override
-        public boolean canPropagateFrom(ForgeDirection fromSide) {
+        public boolean canPropagateFrom(EnumFacing fromSide) {
 
             return ((IRedstoneConductor) dev).canPropagateFrom(computeDirection(dev, fromSide));
         }
@@ -144,17 +133,16 @@ public class RedstoneWrappers {
 
     private static class AdvancedRedstoneConductorWrapper extends RedstoneConductorWrapper implements IAdvancedRedstoneConductor {
 
-        public AdvancedRedstoneConductorWrapper(IAdvancedRedstoneConductor dev, ForgeDirection face) {
+        public AdvancedRedstoneConductorWrapper(IAdvancedRedstoneConductor dev, EnumFacing face) {
 
             super(dev, face);
         }
 
+
         @Override
-        public void propagate(ForgeDirection fromSide, Collection<IConnection<IRedstoneDevice>> propagation) {
-
-            ((IAdvancedRedstoneConductor) dev).propagate(computeDirection(dev, fromSide), propagation);
+        public Collection<Map.Entry<IConnection<IRedstoneDevice>, Boolean>> propagate(EnumFacing fromSide) {
+            return ((IAdvancedRedstoneConductor) dev).propagate(computeDirection(dev, fromSide));
         }
-
     }
 
 }

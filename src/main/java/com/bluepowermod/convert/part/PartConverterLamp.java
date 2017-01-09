@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import uk.co.qmunity.lib.part.IPart;
 
-;
+
 
 public class PartConverterLamp implements IPartConverter {
 
@@ -19,7 +19,7 @@ public class PartConverterLamp implements IPartConverter {
     }
 
     @Override
-    public IPart convert(NBTTagCompound old) {
+    public IQLPart convert(NBTTagCompound old) {
 
         String id = old.getString("part_id");
         id = id.replace("cagelamp", "cagelamp.").replace("fixture", "fixture.").replace("silver", "light_gray");

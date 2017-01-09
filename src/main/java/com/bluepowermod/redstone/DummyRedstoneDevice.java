@@ -70,7 +70,7 @@ public class DummyRedstoneDevice implements IRedstoneDevice {
     public boolean canConnect(EnumFacing side, IRedstoneDevice dev, ConnectionType type) {
 
         if (type == ConnectionType.STRAIGHT)
-            return  RedstoneHelper.canConnect(world, loc, side, dev instanceof IFace ? ((IFace) dev).getFace()
+            return  RedstoneHelper.canConnectRedstone(world, loc, side, dev instanceof IFace ? ((IFace) dev).getFace()
                     : null);
 
         return false;
@@ -92,7 +92,7 @@ public class DummyRedstoneDevice implements IRedstoneDevice {
         if (side == null)
             return 0;
 
-        return (byte) MathHelper.map(RedstoneHelper.getOutput(world, loc, side), 0, 15, 0, 255);
+        return (byte) MathHelper.map(RedstoneHelper.getWeakRedstoneOutput(world, loc, side), 0, 15, 0, 255);
     }
 
     @Override

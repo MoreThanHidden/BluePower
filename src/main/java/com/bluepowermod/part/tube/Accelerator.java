@@ -8,36 +8,31 @@
 package com.bluepowermod.part.tube;
 
 import com.bluepowermod.client.render.IconSupplier;
+import com.bluepowermod.part.IPartPlacement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
-import uk.co.qmunity.lib.part.IPart;
-import uk.co.qmunity.lib.part.IPartCustomPlacement;
-import uk.co.qmunity.lib.part.IPartPlacement;
-import uk.co.qmunity.lib.part.compat.MultipartCompatibility;
-import uk.co.qmunity.lib.vec.Vec3dCube;
-import uk.co.qmunity.lib.vec.Vec3dHelper;
+import uk.co.qmunity.lib.helper.OcclusionHelper;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.part.IQLPart;
+import uk.co.qmunity.lib.part.PartSlot;
+import uk.co.qmunity.lib.vec.Cuboid;
+import uk.co.qmunity.lib.vec.Vector3;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-;
+
 
 /**
  * Accelerator extends PneumaticTube, as that's much easier routing wise.
@@ -45,9 +40,16 @@ import java.util.List;
  * @author MineMaarten
  *
  */
-public class Accelerator extends PneumaticTube implements IPartCustomPlacement {
+public class Accelerator extends PneumaticTube implements IPartPlacement {
 
     private EnumFacing rotation = EnumFacing.UP;
+
+    @Override
+    public boolean placePart(IQLPart part, World world, BlockPos location, EnumFacing face, boolean simulated) {
+        if (part instanceof Accelerator)
+            ((Accelerator) part).setRotation(rotation);
+        return true;
+    }
 
     @Override
     public String getType() {
@@ -72,16 +74,16 @@ public class Accelerator extends PneumaticTube implements IPartCustomPlacement {
      * @return A list with the occlusion boxes
      */
     @Override
-    public List<Vec3dCube> getOcclusionBoxes() {
+    public List<Cuboid> getOcclusionBoxes() {
 
-        List<Vec3dCube> aabbs = new ArrayList<Vec3dCube>();
+        List<Cuboid> aabbs = new ArrayList<Cuboid>();
 
         if (rotation == EnumFacing.DOWN || rotation == EnumFacing.UP) {
-            aabbs.add(new Vec3dCube(0, 4 / 16D, 0, 1, 12 / 16D, 1));
+            aabbs.add(new Cuboid(0, 4 / 16D, 0, 1, 12 / 16D, 1));
         } else if (rotation == EnumFacing.NORTH || rotation == EnumFacing.SOUTH) {
-            aabbs.add(new Vec3dCube(0, 0, 4 / 16D, 1, 1, 12 / 16D));
+            aabbs.add(new Cuboid(0, 0, 4 / 16D, 1, 1, 12 / 16D));
         } else {
-            aabbs.add(new Vec3dCube(4 / 16D, 0, 0, 12 / 16D, 1, 1));
+            aabbs.add(new Cuboid(4 / 16D, 0, 0, 12 / 16D, 1, 1));
         }
         return aabbs;
     }
@@ -117,15 +119,13 @@ public class Accelerator extends PneumaticTube implements IPartCustomPlacement {
     }
 
     @Override
-    public void writeUpdateData(DataOutput buffer) throws IOException {
-
+    public void writeUpdateData(MCByteBuf buffer) {
         super.writeUpdateData(buffer);
         buffer.writeInt(rotation.ordinal());
     }
 
     @Override
-    public void readUpdateData(DataInput buffer) throws IOException {
-
+    public void readUpdateData(MCByteBuf buffer) {
         super.readUpdateData(buffer);
         rotation = EnumFacing.getFront(buffer.readInt());
     }
@@ -135,7 +135,7 @@ public class Accelerator extends PneumaticTube implements IPartCustomPlacement {
 
         if (dir == rotation || dir.getOpposite() == rotation) {
             return getWorld() == null
-                    || !MultipartCompatibility.checkOcclusion(getWorld(), getPos(), sideBB.clone().rotate(dir, Vec3dHelper.CENTER));
+                    || !OcclusionHelper.occlusionTest(getWorld(), getPos(), sideBB);
         } else {
             return false;
         }
@@ -160,30 +160,27 @@ public class Accelerator extends PneumaticTube implements IPartCustomPlacement {
         return IconSupplier.pneumaticTubeSide;
     }
 
-
     @Override
-    @SideOnly(Side.CLIENT)
-    public void renderDynamic(Vec3d loc, double delta, int pass) {
-
-        super.renderDynamic(loc, delta, pass);
+    public void renderDynamic(Vector3 loc, int pass, float frame) {
+        super.renderDynamic(loc, pass, frame);
         if (pass == 0) {
             Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             Tessellator t = Tessellator.getInstance();
             VertexBuffer b = t.getBuffer();
             
             GL11.glPushMatrix();
-            GL11.glTranslatef((float) loc.xCoord + 0.5F, (float) loc.yCoord + 0.5F, (float) loc.zCoord + 0.5F);
+            GL11.glTranslatef((float) loc.x + 0.5F, (float) loc.y + 0.5F, (float) loc.z + 0.5F);
             if (rotation == EnumFacing.NORTH || rotation == EnumFacing.SOUTH) {
                 GL11.glRotated(90, 1, 0, 0);
             } else if (rotation == EnumFacing.EAST || rotation == EnumFacing.WEST) {
                 GL11.glRotated(90, 0, 0, 1);
             }
-            GL11.glTranslatef((float) -loc.xCoord - 0.5F, (float) -loc.yCoord - 0.5F, (float) -loc.zCoord - 0.5F);
+            GL11.glTranslatef((float) -loc.x - 0.5F, (float) -loc.y - 0.5F, (float) -loc.z - 0.5F);
 
             b.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
             
             b.putColorRGB_F4(1, 1, 1);
-            b.setTranslation((float) loc.xCoord, (float) loc.yCoord, (float) loc.zCoord);
+            b.setTranslation((float) loc.x, (float) loc.y, (float) loc.z);
 
             TextureAtlasSprite icon = isPowered() ? IconSupplier.acceleratorFrontPowered : IconSupplier.acceleratorFront;
 
@@ -262,18 +259,11 @@ public class Accelerator extends PneumaticTube implements IPartCustomPlacement {
             b.pos(6 / 16D, 12 / 16D, 1).tex(maxX, maxY).endVertex();
             b.pos(6 / 16D, 4 / 16D, 1).tex(maxX, minY).endVertex();
 
-            b.setTranslation((float) -loc.xCoord, (float) -loc.yCoord, (float) -loc.zCoord);
+            b.setTranslation((float) -loc.x, (float) -loc.y, (float) -loc.z);
             t.draw();
             GL11.glPopMatrix();
         }
 
-    }
-
-    @Override
-    public IPartPlacement getPlacement(IPart part, World world, BlockPos location, EnumFacing face, RayTraceResult mop,
-                                       EntityPlayer player) {
-
-        return new PartPlacementAccelerator(player);
     }
 
     @Override
@@ -282,4 +272,8 @@ public class Accelerator extends PneumaticTube implements IPartCustomPlacement {
         return true;
     }
 
+    @Override
+    public int getSlotMask() {
+        return PartSlot.CENTER.mask;
+    }
 }

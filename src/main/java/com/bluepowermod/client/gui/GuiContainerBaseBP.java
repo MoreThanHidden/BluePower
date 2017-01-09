@@ -11,18 +11,22 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 import uk.co.qmunity.lib.client.gui.GuiContainerBase;
+import uk.co.qmunity.lib.client.gui.QLGuiContainerBase;
 
 //@Optional.Interface(iface = "codechicken.nei.api.INEIGuiHandler", modid = Dependencies.NEI)
-public class GuiContainerBaseBP extends GuiContainerBase { //implements INEIGuiHandler
+public class GuiContainerBaseBP extends QLGuiContainerBase { //implements INEIGuiHandler
 
-    public GuiContainerBaseBP(Container mainContainer, ResourceLocation _resLoc) {
+    protected IGuiAnimatedStat lastLeftStat, lastRightStat;
+    IInventory inventory;
 
-        super(mainContainer, _resLoc);
+    public GuiContainerBaseBP(Container mainContainer, int xSize, int ySize, ResourceLocation _resLoc) {
+
+        super(mainContainer, xSize, ySize, _resLoc);
     }
 
-    public GuiContainerBaseBP(IInventory inventory, Container mainContainer, ResourceLocation _resLoc) {
-
-        super(inventory, mainContainer, _resLoc);
+    public GuiContainerBaseBP(IInventory inventory, Container mainContainer,  int xSize, int ySize, ResourceLocation _resLoc) {
+        super(mainContainer, xSize, ySize, _resLoc);
+        this.inventory = inventory;
     }
 
     @Override

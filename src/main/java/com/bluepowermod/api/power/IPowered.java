@@ -8,10 +8,9 @@ package com.bluepowermod.api.power;
  * with Blue Power. If not, see <http://www.gnu.org/licenses/>
  */
 
-import net.minecraftforge.common.util.ForgeDirection;
-import uk.co.qmunity.lib.vec.IWorldLocation;
-
 import com.bluepowermod.api.connect.ConnectionType;
+import net.minecraft.util.EnumFacing;
+import uk.co.qmunity.lib.vec.IWorldLocation;
 
 /**
  * Interface implemented by Blulectric machines.
@@ -25,18 +24,18 @@ public interface IPowered extends IWorldLocation {
      * @author Koen Beckers (K4Unl) Gets the powerHandler
      * @return
      */
-    public IPowerBase getPowerHandler(ForgeDirection side);
+    public IPowerBase getPowerHandler(EnumFacing side);
 
     /**
      * Returns whether or not the device passed as an argument can be connected to this device on the specified side. It also takes a ConnectionType,
      * which determines the type of connection to this device.
      */
-    public boolean canConnectPower(ForgeDirection side, IPowered dev, ConnectionType type);
+    public boolean canConnectPower(EnumFacing side, IPowered dev, ConnectionType type);
 
     /**
      * Returns whether or not the face on the specified side occupies the entire side of the block. This is used to determine how the connection logic
      * should work.
      */
-    public boolean isNormalFace(ForgeDirection side);
+    public boolean isNormalFace(EnumFacing side);
 
 }

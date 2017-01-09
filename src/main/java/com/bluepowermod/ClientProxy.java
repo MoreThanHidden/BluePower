@@ -21,23 +21,60 @@ import com.bluepowermod.client.render.IconSupplier;
 import com.bluepowermod.client.render.RenderDebugScreen;
 import com.bluepowermod.client.render.Renderers;
 import com.bluepowermod.compat.CompatibilityUtils;
+import com.bluepowermod.item.ItemMonocle;
 import com.bluepowermod.part.PartManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
+
+import java.lang.reflect.Field;
 
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
 
     @Override
     public void init() {
-
+        ClientRegistry.registerKeyBinding(ItemMonocle.keybind);
     }
+
+    @Override
+    public void setFOVMultiplier(EntityPlayer player, float fovmult) {
+        Field movementfactor = getMovementFactorField();
+        try {
+            movementfactor.set(player, fovmult);
+        } catch (IllegalAccessException e) {
+        }
+    }
+
+    protected static Field movementfactorfieldinstance;
+
+    public static Field getMovementFactorField() {
+        if (movementfactorfieldinstance == null) {
+            try {
+                movementfactorfieldinstance = EntityPlayer.class.getDeclaredField("speedOnGround");
+                movementfactorfieldinstance.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                try {
+                    movementfactorfieldinstance = EntityPlayer.class.getDeclaredField("field_71108_cd");
+                    movementfactorfieldinstance.setAccessible(true);
+                } catch (NoSuchFieldException e1) {
+                    try {
+                        movementfactorfieldinstance = EntityPlayer.class.getDeclaredField("ci");
+                        movementfactorfieldinstance.setAccessible(true);
+                    } catch (NoSuchFieldException e2) {
+                    }
+                }
+            }
+        }
+        return movementfactorfieldinstance;
+    }
+
 
     @Override
     public void initRenderers() {

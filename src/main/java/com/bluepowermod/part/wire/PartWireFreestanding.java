@@ -17,21 +17,22 @@
 package com.bluepowermod.part.wire;
 
 import com.bluepowermod.part.BPPart;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import uk.co.qmunity.lib.client.render.RenderHelper;
-import uk.co.qmunity.lib.part.IPartThruHole;
-import uk.co.qmunity.lib.vec.Vec3dCube;
-import uk.co.qmunity.lib.vec.Vec3dHelper;
+import uk.co.qmunity.lib.client.RenderHelper;
+import uk.co.qmunity.lib.client.render.RenderContext;
+import uk.co.qmunity.lib.model.IVertexConsumer;
+import uk.co.qmunity.lib.part.IThruHolePart;
+import uk.co.qmunity.lib.vec.Cuboid;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class PartWireFreestanding extends BPPart implements IPartThruHole {
+public abstract class PartWireFreestanding extends BPPart implements IThruHolePart {
 
     protected abstract boolean shouldRenderConnection(EnumFacing side);
 
@@ -48,7 +49,7 @@ public abstract class PartWireFreestanding extends BPPart implements IPartThruHo
     }
 
 
-    protected List<Vec3dCube> getFrameBoxes() {
+    protected List<Cuboid> getFrameBoxes() {
 
         double wireSize = getSize() / 16D;
         double frameSeparation = 4 / 16D - (wireSize - 2 / 16D);
@@ -71,153 +72,154 @@ public abstract class PartWireFreestanding extends BPPart implements IPartThruHo
         return false;
     }
 
-    protected List<Vec3dCube> getFrameBoxes(double wireSize, double frameSeparation, double frameThickness, boolean down, boolean up,
+    protected List<Cuboid> getFrameBoxes(double wireSize, double frameSeparation, double frameThickness, boolean down, boolean up,
             boolean west, boolean east, boolean north, boolean south, boolean isInWorld) {
 
         return getFrameBoxes(wireSize, frameSeparation, frameThickness, down, up, west, east, north, south, down, up, west, east, north,
                 south, isInWorld);
     }
 
-    protected List<Vec3dCube> getFrameBoxes(double wireSize, double frameSeparation, double frameThickness, boolean down, boolean up,
+    protected List<Cuboid> getFrameBoxes(double wireSize, double frameSeparation, double frameThickness, boolean down, boolean up,
             boolean west, boolean east, boolean north, boolean south, boolean sideDown, boolean sideUp, boolean sideWest, boolean sideEast,
             boolean sideNorth, boolean sideSouth, boolean isInWorld) {
 
-        List<Vec3dCube> boxes = new ArrayList<Vec3dCube>();
+        List<Cuboid> boxes = new ArrayList<Cuboid>();
 
         // Top
         if (west == up || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2),
+            boxes.add(new Cuboid(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2),
                     0.5 - ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2), 0.5
                             + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5 + ((wireSize + frameSeparation) / 2)));
         if (east == up || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2),
+            boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2),
                     0.5 - ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5
                             + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5 + ((wireSize + frameSeparation) / 2)));
         if (south == up || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2),
+            boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2),
                     0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2), 0.5
                             + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5 + ((wireSize + frameSeparation) / 2)
                             + frameThickness));
         if (north == up || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2), 0.5
+            boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2), 0.5
                     - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2), 0.5
                     + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5 - ((wireSize + frameSeparation) / 2)));
         // Bottom
         if (west == down || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2)
+            boxes.add(new Cuboid(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2)
                     - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2),
                     0.5 - ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2)));
         if (east == down || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness,
+            boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness,
                     0.5 - ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness,
                     0.5 - ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2)));
         if (south == down || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness,
+            boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness,
                     0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2),
                     0.5 - ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness));
         if (north == down || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness,
+            boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness,
                     0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2),
                     0.5 - ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2)));
 
         // Sides
         if (north == west || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2),
+            boxes.add(new Cuboid(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2),
                     0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2),
                     0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2)));
         if (south == west || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2),
+            boxes.add(new Cuboid(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2),
                     0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2),
                     0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness));
         if (north == east || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2), 0.5
+            boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2), 0.5
                     - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness,
                     0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2)));
         if (south == east || !isInWorld || shouldRenderFullFrame())
-            boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2),
+            boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2),
                     0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness,
                     0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness));
 
         // Corners
-        boxes.add(new Vec3dCube(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2), 0.5
+        boxes.add(new Cuboid(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2), 0.5
                 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2), 0.5
                 + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5 - ((wireSize + frameSeparation) / 2)));
-        boxes.add(new Vec3dCube(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2),
+        boxes.add(new Cuboid(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2),
                 0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2), 0.5
                         + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness));
-        boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2), 0.5
+        boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2), 0.5
                 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5
                 + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5 - ((wireSize + frameSeparation) / 2)));
-        boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2),
+        boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2),
                 0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5
                         + ((wireSize + frameSeparation) / 2) + frameThickness, 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness));
 
-        boxes.add(new Vec3dCube(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2)
+        boxes.add(new Cuboid(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2)
                 - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2),
                 0.5 - ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2)));
-        boxes.add(new Vec3dCube(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2)
+        boxes.add(new Cuboid(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2)
                 - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2),
                 0.5 - ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness));
-        boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5
+        boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5
                 - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness,
                 0.5 - ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2)));
-        boxes.add(new Vec3dCube(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness,
+        boxes.add(new Cuboid(0.5 + ((wireSize + frameSeparation) / 2), 0.5 - ((wireSize + frameSeparation) / 2) - frameThickness,
                 0.5 + ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness,
                 0.5 - ((wireSize + frameSeparation) / 2), 0.5 + ((wireSize + frameSeparation) / 2) + frameThickness));
 
         if (isInWorld) {
             // Connections
-            Vec3dCube box = new Vec3dCube(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0, 0.5
+            Cuboid box = new Cuboid(0.5 - ((wireSize + frameSeparation) / 2) - frameThickness, 0, 0.5
                     - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2), 0.5
                     - ((wireSize + frameSeparation) / 2) - frameThickness, 0.5 - ((wireSize + frameSeparation) / 2));
 
             if (sideDown)
                 for (int i = 0; i < 4; i++)
-                    boxes.add(box.clone().rotate(0, 90 * i, 0, Vec3dHelper.CENTER).rotate(EnumFacing.DOWN, Vec3dHelper.CENTER));
+                    boxes.add(box.onFace(EnumFacing.DOWN));
             if (sideUp)
                 for (int i = 0; i < 4; i++)
-                    boxes.add(box.clone().rotate(0, 90 * i, 0, Vec3dHelper.CENTER).rotate(EnumFacing.UP, Vec3dHelper.CENTER));
+                    boxes.add(box.onFace(EnumFacing.UP));
             if (sideWest)
                 for (int i = 0; i < 4; i++)
-                    boxes.add(box.clone().rotate(0, 90 * i, 0, Vec3dHelper.CENTER).rotate(EnumFacing.WEST, Vec3dHelper.CENTER));
+                    boxes.add(box.onFace(EnumFacing.WEST));
             if (sideEast)
                 for (int i = 0; i < 4; i++)
-                    boxes.add(box.clone().rotate(0, 90 * i, 0, Vec3dHelper.CENTER).rotate(EnumFacing.EAST, Vec3dHelper.CENTER));
+                    boxes.add(box.onFace(EnumFacing.EAST));
             if (sideNorth)
                 for (int i = 0; i < 4; i++)
-                    boxes.add(box.clone().rotate(0, 90 * i, 0, Vec3dHelper.CENTER).rotate(EnumFacing.NORTH, Vec3dHelper.CENTER));
+                    boxes.add(box.onFace(EnumFacing.NORTH));
             if (sideSouth)
                 for (int i = 0; i < 4; i++)
-                    boxes.add(box.clone().rotate(0, 90 * i, 0, Vec3dHelper.CENTER).rotate(EnumFacing.SOUTH, Vec3dHelper.CENTER));
+                    boxes.add(box.onFace(EnumFacing.SOUTH));
         }
 
         return boxes;
     }
 
-    protected void renderFrame(RenderHelper helper, double wireSize, double frameSeparation, double frameThickness, boolean down,
+    protected void renderFrame(double wireSize, double frameSeparation, double frameThickness, boolean down,
                                boolean up, boolean west, boolean east, boolean north, boolean south, boolean sideDown, boolean sideUp, boolean sideWest,
                                boolean sideEast, boolean sideNorth, boolean sideSouth, boolean isInWorld, TextureAtlasSprite texture, int color) {
 
-        helper.setColor(color);
+        Tessellator t = Tessellator.getInstance();
+        VertexBuffer buffer = t.getBuffer();
+        buffer.putColor4(color);
 
-        for (Vec3dCube box : getFrameBoxes(wireSize, frameSeparation, frameThickness, down, up, west, east, north, south, sideDown, sideUp,
+        for (Cuboid box : getFrameBoxes(wireSize, frameSeparation, frameThickness, down, up, west, east, north, south, sideDown, sideUp,
                 sideWest, sideEast, sideNorth, sideSouth, isInWorld))
-            helper.renderBox(box, texture);
+            RenderHelper.drawTesselatedTexturedCube(box);
 
-        helper.setColor(0xFFFFFF);
+        buffer.color(255,255,255,1);
     }
 
-    protected void renderFrame(RenderHelper helper, double wireSize, double frameSeparation, double frameThickness, boolean down,
+    protected void renderFrame(double wireSize, double frameSeparation, double frameThickness, boolean down,
             boolean up, boolean west, boolean east, boolean north, boolean south, boolean isInWorld, TextureAtlasSprite texture, int color) {
 
-        renderFrame(helper, wireSize, frameSeparation, frameThickness, down, up, west, east, north, south, down, up, west, east, north,
+        renderFrame(wireSize, frameSeparation, frameThickness, down, up, west, east, north, south, down, up, west, east, north,
                 south, isInWorld, texture, color);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean renderStatic(Vec3i translation, RenderHelper renderer, VertexBuffer buffer, int pass) {
-
+    public boolean renderStatic(RenderContext context, IVertexConsumer consumer, int pass) {
         double wireSize = getSize() / 16D;
         double frameSeparation = 4 / 16D - (wireSize - 2 / 16D);
         double frameThickness = 1 / 16D;
@@ -233,34 +235,37 @@ public abstract class PartWireFreestanding extends BPPart implements IPartThruHo
         boolean west = shouldRenderConnection(EnumFacing.WEST);
         boolean east = shouldRenderConnection(EnumFacing.EAST);
 
-        renderer.setColor(color);
+        Tessellator t = Tessellator.getInstance();
+        VertexBuffer buffer = t.getBuffer();
+        buffer.putColor4(color);
 
         // Wire
-        renderer.renderBox(new Vec3dCube(0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 + (wireSize / 2),
-                0.5 + (wireSize / 2), 0.5 + (wireSize / 2)), getIcons(null));
-        if (up || !isInWorld)
-            renderer.renderBox(new Vec3dCube(0.5 - (wireSize / 2), 0.5 + (wireSize / 2), 0.5 - (wireSize / 2), 0.5 + (wireSize / 2), 1,
-                    0.5 + (wireSize / 2)), getIcons(EnumFacing.UP));
-        if (down || !isInWorld)
-            renderer.renderBox(new Vec3dCube(0.5 - (wireSize / 2), 0, 0.5 - (wireSize / 2), 0.5 + (wireSize / 2), 0.5 - (wireSize / 2),
-                    0.5 + (wireSize / 2)), getIcons(EnumFacing.DOWN));
-        if (north || !isInWorld)
-            renderer.renderBox(new Vec3dCube(0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0, 0.5 + (wireSize / 2), 0.5 + (wireSize / 2),
-                    0.5 - (wireSize / 2)), getIcons(EnumFacing.NORTH));
-        if (south || !isInWorld)
-            renderer.renderBox(new Vec3dCube(0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 + (wireSize / 2), 0.5 + (wireSize / 2),
-                    0.5 + (wireSize / 2), 1), getIcons(EnumFacing.SOUTH));
-        if (west || !isInWorld)
-            renderer.renderBox(new Vec3dCube(0, 0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 + (wireSize / 2),
-                    0.5 + (wireSize / 2)), getIcons(EnumFacing.WEST));
-        if (east || !isInWorld)
-            renderer.renderBox(new Vec3dCube(0.5 + (wireSize / 2), 0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 1, 0.5 + (wireSize / 2),
-                    0.5 + (wireSize / 2)), getIcons(EnumFacing.EAST));
 
-        renderer.setColor(getFrameColorMultiplier());
+        RenderHelper.drawTesselatedTexturedCube(new Cuboid(0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 + (wireSize / 2),
+                0.5 + (wireSize / 2), 0.5 + (wireSize / 2)));
+        if (up || !isInWorld)
+           RenderHelper.drawTesselatedTexturedCube(new Cuboid(0.5 - (wireSize / 2), 0.5 + (wireSize / 2), 0.5 - (wireSize / 2), 0.5 + (wireSize / 2), 1,
+                    0.5 + (wireSize / 2)));
+        if (down || !isInWorld)
+            RenderHelper.drawTesselatedTexturedCube(new Cuboid(0.5 - (wireSize / 2), 0, 0.5 - (wireSize / 2), 0.5 + (wireSize / 2), 0.5 - (wireSize / 2),
+                    0.5 + (wireSize / 2)));
+        if (north || !isInWorld)
+            RenderHelper.drawTesselatedTexturedCube(new Cuboid(0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0, 0.5 + (wireSize / 2), 0.5 + (wireSize / 2),
+                    0.5 - (wireSize / 2)));
+        if (south || !isInWorld)
+            RenderHelper.drawTesselatedTexturedCube(new Cuboid(0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 + (wireSize / 2), 0.5 + (wireSize / 2),
+                    0.5 + (wireSize / 2), 1));
+        if (west || !isInWorld)
+            RenderHelper.drawTesselatedTexturedCube(new Cuboid(0, 0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 0.5 + (wireSize / 2),
+                    0.5 + (wireSize / 2)));
+        if (east || !isInWorld)
+            RenderHelper.drawTesselatedTexturedCube(new Cuboid(0.5 + (wireSize / 2), 0.5 - (wireSize / 2), 0.5 - (wireSize / 2), 1, 0.5 + (wireSize / 2),
+                    0.5 + (wireSize / 2)));
+
+        buffer.putColor4(getFrameColorMultiplier());
 
         // Frame
-        renderFrame(renderer, wireSize, frameSeparation, frameThickness, down, up, west, east, north, south, isInWorld, getFrameIcon(),
+        renderFrame(wireSize, frameSeparation, frameThickness, down, up, west, east, north, south, isInWorld, getFrameIcon(),
                 getFrameColorMultiplier());
 
         return true;

@@ -7,7 +7,6 @@
  */
 package com.bluepowermod.item;
 
-import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.init.BPCreativeTabs;
 import com.bluepowermod.reference.Refs;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -18,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import uk.co.qmunity.lib.util.MinecraftColor;
 
 /**
  * @author MineMaarten

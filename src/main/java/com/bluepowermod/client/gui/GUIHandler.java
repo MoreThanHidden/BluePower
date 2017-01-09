@@ -89,7 +89,7 @@ public class GUIHandler implements IGuiHandler {
             return new ContainerRedbusID(player.inventory, (IRedBusWindow) ent);
 
         case KINETICGENERATOR_ID:
-            return new ContainerKinect(player.inventory, (TileKinectGenerator) ent);
+            return new ContainerKinect(player.inventory, (TileKineticGenerator) ent);
         case DEPLOYER_ID:
             return new ContainerDeployer(player.inventory, (TileDeployer) ent);
         case RELAY_ID:
@@ -165,7 +165,7 @@ public class GUIHandler implements IGuiHandler {
         case REDBUS_ID:
             return new GuiRedbusID(player.inventory, (IRedBusWindow) ent);
         case KINETICGENERATOR_ID:
-            return new GuiKinect(player.inventory, (TileKinectGenerator) ent);
+            return new GuiKinect(player.inventory, (TileKineticGenerator) ent);
         case DEPLOYER_ID:
             return new GuiDeployer(player.inventory, (TileDeployer) ent);
         case RELAY_ID:

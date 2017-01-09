@@ -18,7 +18,7 @@ public class PartConverterTube implements IPartConverter {
     }
 
     @Override
-    public IPart convert(NBTTagCompound old) {
+    public IQLPart convert(NBTTagCompound old) {
 
         PartInfo info = PartManager.getPartInfo(old.getString("part_id"));
         if (info == null)

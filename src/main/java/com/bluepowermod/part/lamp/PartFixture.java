@@ -7,15 +7,11 @@
  */
 package com.bluepowermod.part.lamp;
 
-import com.bluepowermod.api.misc.MinecraftColor;
-import com.bluepowermod.client.render.IconSupplier;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
-import uk.co.qmunity.lib.client.render.RenderHelper;
-import uk.co.qmunity.lib.vec.Vec3dCube;
-import uk.co.qmunity.lib.vec.Vec3dHelper;
+import uk.co.qmunity.lib.util.MinecraftColor;
+import uk.co.qmunity.lib.vec.Cuboid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,48 +38,21 @@ public class PartFixture extends PartLamp {
      * @author Koen Beckers (K4Unl), Amadornes
      */
     @Override
-    public List<Vec3dCube> getSelectionBoxes() {
+    public List<Cuboid> getSelectionBoxes() {
 
-        List<Vec3dCube> boxes = new ArrayList<Vec3dCube>();
+        List<Cuboid> boxes = new ArrayList<Cuboid>();
 
-        boxes.add(new Vec3dCube(2 / 16D, 0.0, 2 / 16D, 14 / 16D, 2 / 16D, 14 / 16D).rotate(getFace(), Vec3dHelper.CENTER));
-        boxes.add(new Vec3dCube(3 / 16D, 2 / 16D, 3 / 16D, 13 / 16D, 8 / 16D, 13 / 16D).expand(0.5 / 16D).rotate(getFace(), Vec3dHelper.CENTER));
+        boxes.add(new Cuboid(2 / 16D, 0.0, 2 / 16D, 14 / 16D, 2 / 16D, 14 / 16D));
+        boxes.add(new Cuboid(3 / 16D, 2 / 16D, 3 / 16D, 13 / 16D, 8 / 16D, 13 / 16D).expand(0.5 / 16D));
 
         return boxes;
-    }
-
-    /**
-     * @author Koen Beckers (K4Unl), Amadornes
-     */
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void renderLamp(RenderHelper renderer) {
-
-        Vec3dCube vector = new Vec3dCube(2 / 16D, 0.0, 2 / 16D, 1.0 - (2 / 16D), 2 / 16D, 1.0 - 2 / 16D);
-        TextureAtlasSprite topIcon = IconSupplier.fixtureFootTop;
-        TextureAtlasSprite sideIcon = IconSupplier.fixtureFootSide;
-
-        renderer.renderBox(vector, topIcon, topIcon, sideIcon, sideIcon, sideIcon, sideIcon);
-
-        vector = new Vec3dCube(3 / 16D, 2 / 16D, 3 / 16D, 1.0 - (3 / 16D), 8 / 16D, 13 / 16D);
-        if (inverted ? (power & 0xFF) == 255 : power == 0) {
-            sideIcon = IconSupplier.fixtureLampSideOff;
-            topIcon = IconSupplier.fixtureLampTopOff;
-        } else {
-            sideIcon = IconSupplier.fixtureLampSideOn;
-            topIcon = IconSupplier.fixtureLampTopOn;
-        }
-
-        renderer.setColor(color.getHex());
-        renderer.renderBox(vector, topIcon, topIcon, sideIcon, sideIcon, sideIcon, sideIcon);
-        renderer.setColor(0xFFFFFF);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void renderGlow(int pass) {
 
-        Vec3dCube vector = new Vec3dCube(3 / 16D, 2 / 16D, 3 / 16D, 1.0 - (3 / 16D), 8 / 16D, 13 / 16D).rotate(getFace(), Vec3dHelper.CENTER);
+        Cuboid vector = new Cuboid(3 / 16D, 2 / 16D, 3 / 16D, 1.0 - (3 / 16D), 8 / 16D, 13 / 16D);
 
         double r = ((color.getHex() & 0xFF0000) >> 16) / 256D;
         double g = ((color.getHex() & 0x00FF00) >> 8) / 256D;
@@ -94,7 +63,7 @@ public class PartFixture extends PartLamp {
             GL11.glDisable(GL11.GL_TEXTURE_2D);
             GL11.glDisable(GL11.GL_LIGHTING);
             GL11.glBegin(GL11.GL_QUADS);
-            com.bluepowermod.client.render.RenderHelper.drawColoredCube(vector.clone().expand(0.5 / 16D), r, g, b,
+            com.bluepowermod.client.render.RenderHelper.drawColoredCube(vector.expand(0.5 / 16D), r, g, b,
                     ((inverted ? 255 - (power & 0xFF) : (power & 0xFF)) / 256D) * 0.625);
             GL11.glEnd();
             GL11.glEnable(GL11.GL_CULL_FACE);

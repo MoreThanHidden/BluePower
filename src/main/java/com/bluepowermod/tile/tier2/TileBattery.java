@@ -7,7 +7,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
 import uk.co.qmunity.lib.network.annotation.DescSynced;
 import uk.co.qmunity.lib.network.annotation.GuiSynced;
 
@@ -28,7 +27,7 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
     private int textureIndex;
 
     @GuiSynced
-    private final IPowerBase powerBase = getPowerHandler(ForgeDirection.UNKNOWN);
+    private final IPowerBase powerBase = getPowerHandler(null);
 
     @GuiSynced
     private int energyBuffer;
@@ -36,11 +35,11 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
     public static final int MAX_ENERGY_BUFFER = 100;
 
     @Override
-    public void updateEntity() {
+    public void update() {
 
-        super.updateEntity();
+        super.update();
 
-        if (!getWorldObj().isRemote) {
+        if (!getWorld().isRemote) {
 
             if (powerBase.getVoltage() < 0.9 * powerBase.getMaxVoltage() && energyBuffer > 0) {
                 energyBuffer -= PowerConstants.BATTERYBOX_POWERTRANSFER_DISCHARGING;
@@ -60,7 +59,7 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
                 IRechargeable battery = (IRechargeable) inventory[1].getItem();
                 energyBuffer -= battery.addEnergy(inventory[1], Math.min((int)PowerConstants.BATTERYBOX_CHARGING_TRANSFER, energyBuffer));
             }
-            if (worldObj.getWorldTime() % 20 == 0)
+            if (world.getWorldTime() % 20 == 0)
                 recalculateTextureIndex();
         }
 
@@ -92,11 +91,11 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
 
         ItemStack itemStack = getStackInSlot(index);
         if (itemStack != null) {
-            if (itemStack.stackSize <= amount) {
+            if (itemStack.getCount() <= amount) {
                 setInventorySlotContents(index, null);
             } else {
                 itemStack = itemStack.splitStack(amount);
-                if (itemStack.stackSize == 0) {
+                if (itemStack.getCount() == 0) {
                     setInventorySlotContents(index, null);
                 }
             }
@@ -106,8 +105,7 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int index) {
-
+    public ItemStack removeStackFromSlot(int index) {
         ItemStack itemStack = getStackInSlot(index);
         if (itemStack != null) {
             setInventorySlotContents(index, null);
@@ -121,14 +119,15 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
         inventory[index] = toSet;
     }
 
+
     @Override
-    public String getInventoryName() {
+    public String getName() {
 
         return BPBlocks.battery.getUnlocalizedName();
     }
 
     @Override
-    public boolean hasCustomInventoryName() {
+    public boolean hasCustomName() {
 
         return true;
     }
@@ -140,18 +139,18 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer p_70300_1_) {
+    public boolean isUsableByPlayer(EntityPlayer p_70300_1_) {
 
         return true;
     }
 
     @Override
-    public void openInventory() {
+    public void openInventory(EntityPlayer player) {
 
     }
 
     @Override
-    public void closeInventory() {
+    public void closeInventory(EntityPlayer player) {
 
     }
 
@@ -176,7 +175,7 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
 
         for (int i = 0; i < 2; i++) {
             NBTTagCompound tc = tCompound.getCompoundTag("inventory" + i);
-            inventory[i] = ItemStack.loadItemStackFromNBT(tc);
+            inventory[i] = new ItemStack(tc);
         }
         energyBuffer = tCompound.getInteger("energyBuffer");
     }
@@ -185,7 +184,7 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
      * This function gets called whenever the world/chunk is saved
      */
     @Override
-    public void writeToNBT(NBTTagCompound tCompound) {
+    public NBTTagCompound writeToNBT(NBTTagCompound tCompound) {
 
         super.writeToNBT(tCompound);
 
@@ -197,5 +196,6 @@ public class TileBattery extends TileBluePowerBase implements IPowered, IInvento
             }
         }
         tCompound.setInteger("energyBuffer", energyBuffer);
+        return tCompound;
     }
 }

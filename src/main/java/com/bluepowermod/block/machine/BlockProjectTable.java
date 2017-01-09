@@ -23,11 +23,12 @@ import com.bluepowermod.tile.TileBase;
 import com.bluepowermod.tile.tier1.TileProjectTable;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import uk.co.qmunity.lib.tile.QLTileBase;
 
 
 public class BlockProjectTable extends BlockContainerBase {
 
-    public BlockProjectTable() {
+    public BlockProjectTable(Class<? extends QLTileBase> tileClass) {
 
         super(Material.WOOD, TileProjectTable.class);
         setUnlocalizedName(Refs.PROJECTTABLE_NAME);

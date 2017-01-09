@@ -6,8 +6,7 @@
  * with Blue Power. If not, see <http://www.gnu.org/licenses/>
  */
 package com.bluepowermod.tile.tier3;
-
-import uk.co.qmunity.lib.tile.TileBase;
+import com.bluepowermod.tile.TileBase;
 
 /**
  * @author fabricator77

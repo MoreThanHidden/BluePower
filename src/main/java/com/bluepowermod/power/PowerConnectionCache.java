@@ -1,12 +1,11 @@
 package com.bluepowermod.power;
 
-import net.minecraftforge.common.util.ForgeDirection;
-
 import com.bluepowermod.api.connect.ConnectionType;
 import com.bluepowermod.api.connect.IConnection;
 import com.bluepowermod.api.connect.IConnectionCache;
 import com.bluepowermod.api.connect.IConnectionListener;
 import com.bluepowermod.api.power.IPowerBase;
+import net.minecraft.util.EnumFacing;
 
 public class PowerConnectionCache implements IConnectionCache<IPowerBase> {
 
@@ -26,13 +25,13 @@ public class PowerConnectionCache implements IConnectionCache<IPowerBase> {
     }
 
     @Override
-    public IConnection<IPowerBase> getConnectionOnSide(ForgeDirection side) {
+    public IConnection<IPowerBase> getConnectionOnSide(EnumFacing side) {
 
         return connections[side.ordinal()];
     }
 
     @Override
-    public void onConnect(ForgeDirection side, IPowerBase connectable, ForgeDirection connectableSide, ConnectionType type) {
+    public void onConnect(EnumFacing side, IPowerBase connectable, EnumFacing connectableSide, ConnectionType type) {
 
         PowerConnection con = connections[side.ordinal()] = new PowerConnection(getSelf(), connectable, side, connectableSide, type);
         if (listener != null)
@@ -40,7 +39,7 @@ public class PowerConnectionCache implements IConnectionCache<IPowerBase> {
     }
 
     @Override
-    public void onDisconnect(ForgeDirection side) {
+    public void onDisconnect(EnumFacing side) {
 
         PowerConnection con = connections[side.ordinal()];
         connections[side.ordinal()] = null;
@@ -55,7 +54,7 @@ public class PowerConnectionCache implements IConnectionCache<IPowerBase> {
             return;
 
         IPowerBase self = getSelf();
-        for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
+        for (EnumFacing d : EnumFacing.VALUES) {
             boolean wasConnected = connections[d.ordinal()] != null;
             PowerConnection con = PowerConnectionHelper.getNeighbor(self, d);
             if (con != null) {

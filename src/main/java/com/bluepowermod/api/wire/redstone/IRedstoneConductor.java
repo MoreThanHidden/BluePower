@@ -6,7 +6,7 @@ import net.minecraft.util.EnumFacing;
 import java.util.Collection;
 import java.util.Map.Entry;
 
-;
+
 
 public interface IRedstoneConductor extends IRedstoneDevice, IRedConductor {
 

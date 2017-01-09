@@ -29,7 +29,7 @@ import net.minecraftforge.fluids.IFluidBlock;
 
 import java.util.List;
 
-;
+
 
 public class TileBlockBreaker extends TileMachineBase {
     

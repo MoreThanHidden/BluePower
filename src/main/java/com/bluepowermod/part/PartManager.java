@@ -7,7 +7,6 @@
  */
 package com.bluepowermod.part;
 
-import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.api.wire.redstone.RedwireType;
 import com.bluepowermod.item.ItemPart;
 import com.bluepowermod.part.gate.analogue.GateComparator;
@@ -31,6 +30,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import uk.co.qmunity.lib.part.PartRegistry;
+import uk.co.qmunity.lib.util.MinecraftColor;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

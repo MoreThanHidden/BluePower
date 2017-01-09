@@ -7,15 +7,20 @@ import com.bluepowermod.reference.Refs;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import uk.co.qmunity.lib.part.IPart;
-import uk.co.qmunity.lib.part.IPartInteractable;
-import uk.co.qmunity.lib.part.ITilePartHolder;
-import uk.co.qmunity.lib.part.compat.MultipartCompatibility;
-import uk.co.qmunity.lib.raytrace.QMovingObjectPosition;
+import uk.co.qmunity.lib.block.BlockMultipart;
+import uk.co.qmunity.lib.part.IPartHolder;
+import uk.co.qmunity.lib.part.IQLPart;
+import uk.co.qmunity.lib.part.MultipartCompat;
+import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 import uk.co.qmunity.lib.raytrace.RayTracer;
-import uk.co.qmunity.lib.vec.Vec3i;
+import uk.co.qmunity.lib.tile.TileMultipart;
+
+import static uk.co.qmunity.lib.block.BlockMultipart.findTile;
 
 /**
  * @author Koen Beckers (K-4U)
@@ -27,7 +32,7 @@ public class ItemSonicScrewdriver extends ItemBattery implements IScrewdriver {
         super(1000);//How much power this screwdriver holds.
 
         setUnlocalizedName(Refs.SONIC_SCREWDRIVER_NAME);
-        setTextureName(Refs.MODID + ":" + Refs.SONIC_SCREWDRIVER_NAME);
+        setRegistryName(Refs.MODID + ":" + Refs.SONIC_SCREWDRIVER_NAME);
     }
 
     @Override
@@ -43,47 +48,45 @@ public class ItemSonicScrewdriver extends ItemBattery implements IScrewdriver {
     }
 
     @Override
-    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
-
-        Block block = world.getBlock(x, y, z);
+    public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
+        Block block = world.getBlockState(pos).getBlock();
 
         if (player.isSneaking()) {
-            ITilePartHolder itph = MultipartCompatibility.getPartHolder(world, new Vec3i(x, y, z));
+            IPartHolder itph = MultipartCompat.getHolder(world, pos);
 
-            if (itph != null) {
-                QMovingObjectPosition mop = itph.rayTrace(RayTracer.instance().getStartVector(player), RayTracer.instance().getEndVector(player));
+            if (itph != null && itph instanceof BlockMultipart) {
+                TileMultipart te = findTile(world, pos);
+                QRayTraceResult mop = te.rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
                 if (mop == null)
-                    return false;
-                IPart p = mop.getPart();
-                if (p instanceof IPartInteractable) {
-                    if (((IPartInteractable) p).onActivated(player, mop, stack)) {
-                        damage(stack, 1, player, false);
-                        return true;
+                    return EnumActionResult.PASS;
+                IQLPart p = mop.part;
+                    if (p.onActivated(player, mop, player.getHeldItem(hand))) {
+                        damage(player.getHeldItem(hand), 1, player, false);
+                        return EnumActionResult.SUCCESS;
                     }
                 }
             }
-        }
 
         if (block instanceof BlockContainerBase) {
-            if (((BlockContainerBase) block).getGuiId() >= 0) {
+            if (((BlockContainerBase) block).getGuiID().ordinal() >= 0) {
                 if (player.isSneaking()) {
-                    if (block.rotateBlock(world, x, y, z, ForgeDirection.getOrientation(side))) {
-                        damage(stack, 1, player, false);
-                        return true;
+                    if (block.rotateBlock(world, pos, side)) {
+                        damage(player.getHeldItem(hand), 1, player, false);
+                        return EnumActionResult.SUCCESS;
                     }
                 }
             } else {
-                if (!player.isSneaking() && block.rotateBlock(world, x, y, z, ForgeDirection.getOrientation(side))) {
-                    damage(stack, 1, player, false);
-                    return true;
+                if (!player.isSneaking() && block.rotateBlock(world, pos, side)) {
+                    damage(player.getHeldItem(hand), 1, player, false);
+                    return EnumActionResult.SUCCESS;
                 }
             }
         } else {
-            if (!player.isSneaking() && block.rotateBlock(world, x, y, z, ForgeDirection.getOrientation(side))) {
-                damage(stack, 1, player, false);
-                return true;
+            if (!player.isSneaking() && block.rotateBlock(world, pos, side)) {
+                damage(player.getHeldItem(hand), 1, player, false);
+                return EnumActionResult.SUCCESS;
             }
         }
-        return false;
+        return EnumActionResult.PASS;
     }
 }

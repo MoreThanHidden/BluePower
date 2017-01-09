@@ -3,13 +3,13 @@ package com.bluepowermod.network.message;
 import com.bluepowermod.ClientProxy;
 import com.bluepowermod.part.tube.TubeStack;
 import com.bluepowermod.tile.TileMachineBase;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
-import uk.co.qmunity.lib.client.gui.GuiContainerBase;
+import uk.co.qmunity.lib.client.gui.QLGuiContainerBase;
 import uk.co.qmunity.lib.network.LocatedPacket;
+import uk.co.qmunity.lib.network.MCByteBuf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class MessageSyncMachineBacklog extends LocatedPacket<MessageSyncMachineB
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(MCByteBuf buf) {
 
         super.toBytes(buf);
         buf.writeInt(stacks.size());
@@ -41,8 +41,7 @@ public class MessageSyncMachineBacklog extends LocatedPacket<MessageSyncMachineB
     }
 
     @Override
-    public void fromBytes(ByteBuf buf) {
-
+    public void fromBytes(MCByteBuf buf) {
         super.fromBytes(buf);
         int amount = buf.readInt();
         for (int i = 0; i < amount; i++) {
@@ -56,9 +55,9 @@ public class MessageSyncMachineBacklog extends LocatedPacket<MessageSyncMachineB
         TileEntity te = player.world.getTileEntity(pos);
         if (te instanceof TileMachineBase) {
             ((TileMachineBase) te).setBacklog(stacks);
-            GuiContainerBase gui = (GuiContainerBase) ClientProxy.getOpenedGui();
+            QLGuiContainerBase gui = (QLGuiContainerBase) ClientProxy.getOpenedGui();
             if (gui != null)
-                gui.redraw();
+                gui.updateScreen();
         }
     }
 

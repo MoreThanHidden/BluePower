@@ -117,14 +117,14 @@ public class ContainerSortingMachine extends ContainerMachineBase {
                 }
             }
 
-            /*if (ampStored != sortingMachine.getPowerHandler(ForgeDirection.UNKNOWN).getAmpHourStored()) {
-                icrafting.sendProgressBarUpdate(this, AMPSTORED, (int) sortingMachine.getPowerHandler(ForgeDirection.UNKNOWN).getAmpHourStored());
-                ampStored = sortingMachine.getPowerHandler(ForgeDirection.UNKNOWN).getAmpHourStored();
+            /*if (ampStored != sortingMachine.getPowerHandler(EnumFacing.UNKNOWN).getAmpHourStored()) {
+                icrafting.sendProgressBarUpdate(this, AMPSTORED, (int) sortingMachine.getPowerHandler(EnumFacing.UNKNOWN).getAmpHourStored());
+                ampStored = sortingMachine.getPowerHandler(EnumFacing.UNKNOWN).getAmpHourStored();
             }
 
-            if (ampMax != sortingMachine.getPowerHandler(ForgeDirection.UNKNOWN).getMaxAmpHour()) {
-                icrafting.sendProgressBarUpdate(this, AMPMAX, (int) sortingMachine.getPowerHandler(ForgeDirection.UNKNOWN).getMaxAmpHour());
-                ampMax = sortingMachine.getPowerHandler(ForgeDirection.UNKNOWN).getMaxAmpHour();
+            if (ampMax != sortingMachine.getPowerHandler(EnumFacing.UNKNOWN).getMaxAmpHour()) {
+                icrafting.sendProgressBarUpdate(this, AMPMAX, (int) sortingMachine.getPowerHandler(EnumFacing.UNKNOWN).getMaxAmpHour());
+                ampMax = sortingMachine.getPowerHandler(EnumFacing.UNKNOWN).getMaxAmpHour();
             }*/
         }
 

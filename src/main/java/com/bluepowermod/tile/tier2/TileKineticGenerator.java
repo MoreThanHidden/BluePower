@@ -16,11 +16,11 @@ import net.minecraft.util.EnumFacing;
 
 import java.util.List;
 
-public class TileKinectGenerator extends TileBase implements ISidedInventory{
+public class TileKineticGenerator extends TileBase implements ISidedInventory{
 
 	public int windspeed = 10;
 	public int windtick = 0;
-	public TileKinectGenerator(){
+	public TileKineticGenerator(){
 	}
 
 	@Override

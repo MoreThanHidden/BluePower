@@ -39,7 +39,7 @@ public class GuiAlloyFurnace extends GuiContainerBaseBP {
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
+    public void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 
         super.drawGuiContainerBackgroundLayer(f, i, j);
 

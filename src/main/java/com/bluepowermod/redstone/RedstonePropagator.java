@@ -5,10 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
-
 import net.minecraft.util.EnumFacing;;
-import uk.co.qmunity.lib.misc.Pair;
-
 import com.bluepowermod.api.connect.IConnection;
 import com.bluepowermod.api.gate.IGateConnection;
 import com.bluepowermod.api.wire.redstone.IPropagator;

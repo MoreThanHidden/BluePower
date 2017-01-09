@@ -1,10 +1,10 @@
 package com.bluepowermod.client.render;
 
+import net.minecraft.client.renderer.Tessellator;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.client.renderer.Tessellator;
 
 public class TessellatorHelper {
 
@@ -81,21 +81,21 @@ public class TessellatorHelper {
 
     private static void st() throws Exception {
 
-        oldX = offsetX.getDouble(Tessellator.instance);
-        oldY = offsetY.getDouble(Tessellator.instance);
-        oldZ = offsetZ.getDouble(Tessellator.instance);
+        oldX = offsetX.getDouble(Tessellator.getInstance());
+        oldY = offsetY.getDouble(Tessellator.getInstance());
+        oldZ = offsetZ.getDouble(Tessellator.getInstance());
     }
 
     private static void rt() throws Exception {
 
-        offsetX.setDouble(Tessellator.instance, oldX);
-        offsetY.setDouble(Tessellator.instance, oldY);
-        offsetZ.setDouble(Tessellator.instance, oldZ);
+        offsetX.setDouble(Tessellator.getInstance(), oldX);
+        offsetY.setDouble(Tessellator.getInstance(), oldY);
+        offsetZ.setDouble(Tessellator.getInstance(), oldZ);
     }
 
     private static void sc() throws Exception {
 
-        oldCount = vertexCount.getInt(Tessellator.instance);
+        oldCount = vertexCount.getInt(Tessellator.getInstance());
     }
 
     private static List<TessellatorVertex> fd() throws Exception {
@@ -105,9 +105,9 @@ public class TessellatorHelper {
 
         List<TessellatorVertex> l = new ArrayList<TessellatorVertex>();
 
-        int now = vertexCount.getInt(Tessellator.instance);
+        int now = vertexCount.getInt(Tessellator.getInstance());
 
-        int[] buf = (int[]) rawBuffer.get(Tessellator.instance);
+        int[] buf = (int[]) rawBuffer.get(Tessellator.getInstance());
         int bufIndex = oldCount * 8;
         for (int i = oldCount; i < now; i++) {
             l.add(new TessellatorVertex(buf, bufIndex));

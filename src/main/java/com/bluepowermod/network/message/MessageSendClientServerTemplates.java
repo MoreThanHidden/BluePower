@@ -8,15 +8,12 @@
 package com.bluepowermod.network.message;
 
 import com.bluepowermod.tile.tier3.TileCircuitDatabase;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
+import uk.co.qmunity.lib.network.MCByteBuf;
 import uk.co.qmunity.lib.network.Packet;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +31,7 @@ public class MessageSendClientServerTemplates extends Packet<MessageSendClientSe
     }
 
     @Override
-    public void fromBytes(ByteBuf buf) {
+    public void fromBytes(MCByteBuf buf) {
 
         int amount = buf.readInt();
         stacks = new ArrayList<ItemStack>();
@@ -44,21 +41,11 @@ public class MessageSendClientServerTemplates extends Packet<MessageSendClientSe
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(MCByteBuf buf) {
 
         buf.writeInt(stacks.size());
         for (ItemStack stack : stacks)
             ByteBufUtils.writeItemStack(buf, stack);
-    }
-
-    @Override
-    public void write(DataOutput buffer) throws IOException {
-
-    }
-
-    @Override
-    public void read(DataInput buffer) throws IOException {
-
     }
 
     @Override

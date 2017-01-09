@@ -3,21 +3,18 @@ package com.bluepowermod.redstone;
 import com.bluepowermod.api.connect.ConnectionType;
 import com.bluepowermod.api.connect.IConnection;
 import com.bluepowermod.api.connect.IConnectionCache;
-import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.api.wire.redstone.*;
 import com.bluepowermod.api.wire.redstone.IRedstoneConductor.IAdvancedRedstoneConductor;
 import com.bluepowermod.api.wire.redstone.IRedwire.IInsulatedRedwire;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import uk.co.qmunity.lib.misc.Pair;
+import uk.co.qmunity.lib.util.MinecraftColor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
-
-;
 
 public class BundledDeviceWrapper implements IAdvancedRedstoneConductor {
 

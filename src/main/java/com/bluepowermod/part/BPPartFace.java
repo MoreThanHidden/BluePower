@@ -18,22 +18,16 @@
 package com.bluepowermod.part;
 
 import com.bluepowermod.api.misc.IFace;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import uk.co.qmunity.lib.part.IPart;
-import uk.co.qmunity.lib.part.IPartCustomPlacement;
-import uk.co.qmunity.lib.part.IPartFace;
-import uk.co.qmunity.lib.part.IPartPlacement;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.part.IQLPart;
+import uk.co.qmunity.lib.part.ISlottedPart;
+import uk.co.qmunity.lib.part.PartSlot;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-public abstract class BPPartFace extends BPPart implements IPartFace, IFace, IPartCustomPlacement {
+public abstract class BPPartFace extends BPPart implements ISlottedPart, IFace, IPartPlacement {
 
     private EnumFacing face = EnumFacing.NORTH;
 
@@ -43,6 +37,10 @@ public abstract class BPPartFace extends BPPart implements IPartFace, IFace, IPa
         return face;
     }
 
+    public void setFace(EnumFacing face) {
+        this.face = face;
+    }
+
     public boolean canStay() {
 
         return getWorld().isSideSolid(getPos().offset(getFace()),
@@ -50,7 +48,11 @@ public abstract class BPPartFace extends BPPart implements IPartFace, IFace, IPa
     }
 
     @Override
-    public void setFace(EnumFacing face) {
+    public int getSlotMask() {
+        return PartSlot.face(face.getOpposite()).ordinal();
+    }
+
+    public void face(EnumFacing face) {
 
         this.face = face;
     }
@@ -68,26 +70,15 @@ public abstract class BPPartFace extends BPPart implements IPartFace, IFace, IPa
     }
 
     @Override
-    public void writeUpdateData(DataOutput buffer) throws IOException {
-
+    public void writeUpdateData(MCByteBuf buffer) {
         super.writeUpdateData(buffer);
-
         buffer.writeInt(face.ordinal());
     }
 
     @Override
-    public void readUpdateData(DataInput buffer) throws IOException {
-
+    public void readUpdateData(MCByteBuf buffer) {
         super.readUpdateData(buffer);
-
         face = EnumFacing.getFront(buffer.readInt());
-    }
-
-    @Override
-    public IPartPlacement getPlacement(IPart part, World world, BlockPos location, EnumFacing face, RayTraceResult mop,
-                                       EntityPlayer player) {
-
-        return new PartPlacementFace(face.getOpposite());
     }
 
     @Override
@@ -97,13 +88,17 @@ public abstract class BPPartFace extends BPPart implements IPartFace, IFace, IPa
             return;
 
         if (!canStay()) {
-            if (breakAndDrop(null, null)) {
-                getParent().removePart(this);
-            }
+            harvest(null, null);
             return;
         }
 
         super.onNeighborBlockChange();
+    }
+
+    @Override
+    public boolean placePart(IQLPart part, World world, BlockPos location, EnumFacing face, boolean simulated) {
+        ((BPPartFace)part).setFace(face.getOpposite());
+        return true;
     }
 
 }

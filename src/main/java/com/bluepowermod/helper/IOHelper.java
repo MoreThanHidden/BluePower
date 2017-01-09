@@ -18,7 +18,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.util.EnumFacing;;
-import uk.co.qmunity.lib.part.compat.MultipartCompatibility;
+import uk.co.qmunity.lib.part.compat.MultipartCompat;
 
 import com.bluepowermod.api.tube.IPneumaticTube.TubeColor;
 import com.bluepowermod.api.tube.ITubeConnection;
@@ -245,7 +245,7 @@ public class IOHelper {
         IInventory inv = getInventoryForTE(tile);
         if (!inv.isEmpty())
             return insert(inv, itemStack, direction.ordinal(), simulate);
-        PneumaticTube tube = MultipartCompatibility.getPart(tile.getWorld(), tile.getPos(), PneumaticTube.class);
+        PneumaticTube tube = MultipartCompat.getPart(tile.getWorld(), tile.getPos(), PneumaticTube.class);
         if (tube != null) {// we don't need to check connections, that's catched earlier.
             TubeLogic logic = tube.getLogic();
             return logic.injectStack(itemStack, direction.getOpposite(), color, simulate) ? ItemStack.EMPTY : itemStack;
@@ -384,7 +384,7 @@ public class IOHelper {
 
     public static boolean canInterfaceWith(TileEntity tile, EnumFacing direction, PneumaticTube requester, boolean canInterfaceWithIInventory) {
 
-        PneumaticTube tube = tile != null ? MultipartCompatibility.getPart(tile.getWorld(), tile.getPos(),
+        PneumaticTube tube = tile != null ? MultipartCompat.getPart(tile.getWorld(), tile.getPos(),
                 PneumaticTube.class) : null;
         if (tube != null && tube.isConnected(direction, requester))
             return true;

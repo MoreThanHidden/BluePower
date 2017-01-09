@@ -1,18 +1,17 @@
 package com.bluepowermod.item;
 
-import java.util.List;
-
+import com.bluepowermod.api.power.IRechargeable;
+import com.bluepowermod.init.BPCreativeTabs;
+import com.bluepowermod.reference.Refs;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-import com.bluepowermod.api.power.IRechargeable;
-import com.bluepowermod.init.BPCreativeTabs;
-import com.bluepowermod.reference.Refs;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import java.util.List;
 
 /**
  * @author Koen Beckers (K4Unl)
@@ -27,7 +26,7 @@ public class ItemBattery extends ItemBase implements IRechargeable {
 
         setUnlocalizedName(Refs.BATTERY_ITEM_NAME);
         setCreativeTab(BPCreativeTabs.power);
-        setTextureName(Refs.MODID + ":" + Refs.BATTERY_ITEM_NAME);
+        setRegistryName(Refs.MODID + ":" + Refs.BATTERY_ITEM_NAME);
         setMaxStackSize(1);
         maxVoltage = maxVoltage_;
         setMaxDamage(maxVoltage);
@@ -67,12 +66,9 @@ public class ItemBattery extends ItemBase implements IRechargeable {
 
     @Override
     @SideOnly(Side.CLIENT)
-    /**
-     * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
-     */
-    public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List) {
-        par3List.add(new ItemStack(par1, 1, 0));
-        par3List.add(new ItemStack(par1, 1, getMaxDamage()));
+    public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems) {
+        subItems.add(new ItemStack(itemIn, 1, 0));
+        subItems.add(new ItemStack(itemIn, 1, getMaxDamage()));
     }
 
     @Override

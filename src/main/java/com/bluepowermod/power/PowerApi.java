@@ -1,15 +1,15 @@
 package com.bluepowermod.power;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-
 import com.bluepowermod.api.power.IPowerApi;
 import com.bluepowermod.api.power.IPowerBase;
 import com.bluepowermod.api.power.IPowered;
 import com.bluepowermod.api.power.IPoweredDeviceProvider;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PowerApi implements IPowerApi {
 
@@ -23,10 +23,10 @@ public class PowerApi implements IPowerApi {
     private List<IPoweredDeviceProvider> providers = new ArrayList<IPoweredDeviceProvider>();
 
     @Override
-    public IPowered getPoweredDeviceAt(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side) {
+    public IPowered getPoweredDeviceAt(World world, BlockPos pos, EnumFacing face, EnumFacing side) {
 
         for (IPoweredDeviceProvider provider : providers) {
-            IPowered device = provider.getPoweredDeviceAt(world, x, y, z, face, side);
+            IPowered device = provider.getPoweredDeviceAt(world, pos, face, side);
             if (device != null)
                 return device;
         }

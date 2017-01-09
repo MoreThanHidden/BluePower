@@ -29,7 +29,6 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -37,11 +36,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import uk.co.qmunity.lib.part.IPart;
-import uk.co.qmunity.lib.part.ITilePartHolder;
-import uk.co.qmunity.lib.part.compat.MultipartCompatibility;
+import uk.co.qmunity.lib.block.BlockMultipart;
+import uk.co.qmunity.lib.part.IPartHolder;
+import uk.co.qmunity.lib.part.IQLPart;
+import uk.co.qmunity.lib.part.MultipartCompat;
 import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 import uk.co.qmunity.lib.raytrace.RayTracer;
+import uk.co.qmunity.lib.tile.TileMultipart;
+
+import static uk.co.qmunity.lib.block.BlockMultipart.findTile;
 
 
 public class ItemSilkyScrewdriver extends ItemBase {
@@ -59,14 +62,14 @@ public class ItemSilkyScrewdriver extends ItemBase {
     @Override
     public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
         Block block = world.getBlockState(pos).getBlock();
-        TileEntity te = world.getTileEntity(pos);
+        TileMultipart te = findTile(world, pos);
         ItemStack stack = player.getHeldItem(hand);
 
-        ITilePartHolder h = MultipartCompatibility.getPartHolder(world, pos);
-        if (h != null) {
-            QRayTraceResult mop = h.rayTrace(RayTracer.instance().getStartVector(player), RayTracer.instance().getEndVector(player));
+        IPartHolder h = MultipartCompat.getHolder(world, pos);
+        if (h != null && te != null && h instanceof BlockMultipart) {
+            QRayTraceResult mop = te.rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
             if (mop != null) {
-                IPart p = mop.getPart();
+                IQLPart p = mop.part;
                 if (p instanceof ISilkyRemovable && !world.isRemote) {
                     if (p instanceof IAdvancedSilkyRemovable && !((IAdvancedSilkyRemovable) p).preSilkyRemoval(world, pos))
                         return EnumActionResult.PASS;
@@ -77,7 +80,7 @@ public class ItemSilkyScrewdriver extends ItemBase {
                     } else {
                         p.writeToNBT(tag);
                     }
-                    ItemStack droppedStack = p.getItem();
+                    ItemStack droppedStack = p.getPickBlock(null, null);
                     NBTTagCompound stackTag = droppedStack.getTagCompound();
                     if (stackTag == null) {
                         stackTag = new NBTTagCompound();
@@ -85,6 +88,7 @@ public class ItemSilkyScrewdriver extends ItemBase {
                     }
                     stackTag.setTag("tileData", tag);
                     stackTag.setBoolean("hideSilkyTooltip", hideTooltip);
+
                     world.spawnEntity(new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, droppedStack));
                     h.removePart(p);
                     if (p instanceof IAdvancedSilkyRemovable)

@@ -1,13 +1,9 @@
 package com.bluepowermod.network.message;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-import net.minecraft.entity.player.EntityPlayer;
-import uk.co.qmunity.lib.network.Packet;
-
 import com.bluepowermod.part.tube.TubeStack;
+import net.minecraft.entity.player.EntityPlayer;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.network.Packet;
 
 public class MessageServerTickTime extends Packet<MessageServerTickTime> {
     private double tickTime;
@@ -30,12 +26,12 @@ public class MessageServerTickTime extends Packet<MessageServerTickTime> {
     }
 
     @Override
-    public void read(DataInput buffer) throws IOException {
+    public void fromBytes(MCByteBuf buffer) {
         tickTime = buffer.readDouble();
     }
 
     @Override
-    public void write(DataOutput buffer) throws IOException {
+    public void toBytes(MCByteBuf buffer) {
         buffer.writeDouble(tickTime);
     }
 

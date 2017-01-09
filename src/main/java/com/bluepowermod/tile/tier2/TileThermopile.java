@@ -7,7 +7,8 @@ import com.bluepowermod.reference.PowerConstants;
 import com.bluepowermod.tile.TileMachineBase;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 
@@ -20,11 +21,10 @@ public class TileThermopile extends TileMachineBase implements IPowered {
     private double temperatureDifference;
 
     @Override
-    public void updateEntity() {
+    public void update() {
+        super.update();
 
-        super.updateEntity();
-
-        if (!getWorldObj().isRemote) {
+        if (!getWorld().isRemote) {
             if(updateTemperatureTicks == 3){
                 temperatureDifference = getTemperatureDifference();
                 updateTemperatureTicks++;
@@ -32,14 +32,13 @@ public class TileThermopile extends TileMachineBase implements IPowered {
                 updateTemperatureTicks ++;
             }
             double addedEnergy = temperatureDifference * PowerConstants.THERMOPILE_MULTIPLIER;
-            getPowerHandler(ForgeDirection.UNKNOWN).addEnergy(addedEnergy, false);
+            getPowerHandler(null).addEnergy(addedEnergy, false);
         }
-
     }
 
     @Override
-    public void onNeighborBlockChanged() {
-        super.onNeighborBlockChanged();
+    public void onBlockNeighbourChanged() {
+        super.onBlockNeighbourChanged();
         updateTemperatureTicks = 0;
     }
 
@@ -52,26 +51,23 @@ public class TileThermopile extends TileMachineBase implements IPowered {
         int lowestTemperature = Integer.MAX_VALUE;
         int temperature = 0;
         int amountOfBlocks = 0;
-        for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS){
-            int x = xCoord + dir.offsetX;
-            int y = yCoord + dir.offsetY;
-            int z = zCoord + dir.offsetZ;
-
-            Block toCheck = getWorld().getBlock(x, y, z);
+        for(EnumFacing dir : EnumFacing.VALUES){
+            BlockPos pos = this.getPos().offset(dir);
+            Block toCheck = getWorld().getBlockState(pos).getBlock();
             Fluid blockFluid = FluidRegistry.lookupFluidForBlock(toCheck);
-            if(toCheck == Blocks.flowing_lava && blockFluid == null){
+            if(toCheck == Blocks.FLOWING_LAVA && blockFluid == null){
                 blockFluid = FluidRegistry.LAVA;
             }
-            if(toCheck == Blocks.flowing_water && blockFluid == null){
+            if(toCheck == Blocks.FLOWING_WATER && blockFluid == null){
                 blockFluid = FluidRegistry.WATER;
             }
 
             if(blockFluid != null){
-                lowestTemperature = Math.min(blockFluid.getTemperature(getWorld(), x, y, z), lowestTemperature);
-                temperature += blockFluid.getTemperature(getWorld(), x, y, z);
+                lowestTemperature = Math.min(blockFluid.getTemperature(getWorld(), pos), lowestTemperature);
+                temperature += blockFluid.getTemperature(getWorld(), pos);
                 amountOfBlocks++;
             }
-            if(toCheck == Blocks.ice || toCheck == Blocks.packed_ice || toCheck == Blocks.snow){
+            if(toCheck == Blocks.ICE || toCheck == Blocks.PACKED_ICE || toCheck == Blocks.SNOW){
                 lowestTemperature = Math.min(273, lowestTemperature);
                 temperature += 273;
                 amountOfBlocks++;

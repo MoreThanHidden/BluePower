@@ -8,7 +8,6 @@
 package com.bluepowermod.tile;
 
 import com.bluepowermod.BluePower;
-import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.api.tube.IPneumaticTube.TubeColor;
 import com.bluepowermod.api.tube.ITubeConnection;
 import com.bluepowermod.api.tube.IWeightedTubeInventory;
@@ -26,17 +25,16 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import uk.co.qmunity.lib.util.MinecraftColor;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-;
-
 /**
  * @author MineMaarten
  */
-public class TileMachineBase extends TileBase implements ITubeConnection, IWeightedTubeInventory, IEjectAnimator {
+public class TileMachineBase extends TileBluePowerBase implements ITubeConnection, IWeightedTubeInventory, IEjectAnimator {
 
     protected boolean spawnItemsInWorld = true;
     protected boolean acceptsTubeItems = true;

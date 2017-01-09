@@ -8,11 +8,11 @@
 package com.bluepowermod.network.message;
 
 import com.bluepowermod.tile.IGUITextFieldSensitive;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import uk.co.qmunity.lib.network.LocatedPacket;
+import uk.co.qmunity.lib.network.MCByteBuf;
 
 public class MessageUpdateTextfield extends LocatedPacket<MessageUpdateTextfield> {
 
@@ -31,16 +31,14 @@ public class MessageUpdateTextfield extends LocatedPacket<MessageUpdateTextfield
     }
 
     @Override
-    public void toBytes(ByteBuf buffer) {
-
+    public void toBytes(MCByteBuf buffer) {
         super.toBytes(buffer);
         buffer.writeInt(textFieldID);
         ByteBufUtils.writeUTF8String(buffer, text);
     }
 
     @Override
-    public void fromBytes(ByteBuf buffer) {
-
+    public void fromBytes(MCByteBuf buffer) {
         super.fromBytes(buffer);
         textFieldID = buffer.readInt();
         text = ByteBufUtils.readUTF8String(buffer);

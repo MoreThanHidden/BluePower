@@ -7,11 +7,11 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import uk.co.qmunity.lib.helper.OcclusionHelper;
 import uk.co.qmunity.lib.part.MicroblockShape;
-import uk.co.qmunity.lib.part.compat.OcclusionHelper;
 import uk.co.qmunity.lib.vec.IWorldLocation;
 
-;
+
 
 public class ConnectionLogicHelper<T extends IWorldLocation, C> {
 

@@ -1,14 +1,13 @@
 package com.bluepowermod.power;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
-import uk.co.qmunity.lib.network.annotation.GuiSynced;
-
 import com.bluepowermod.api.connect.IConnection;
 import com.bluepowermod.api.connect.IConnectionCache;
 import com.bluepowermod.api.misc.IFace;
 import com.bluepowermod.api.power.IPowerBase;
 import com.bluepowermod.api.power.IPowered;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import uk.co.qmunity.lib.network.annotation.GuiSynced;
 
 /**
  * @author Koen Beckers (K4Unl)
@@ -54,7 +53,7 @@ public class PowerHandler implements IPowerBase, IFace {
 
         NBTTagCompound tag = new NBTTagCompound();
         for (int i = 0; i < 6; i++)
-            tag.setBoolean("connected_" + i, cache.getConnectionOnSide(ForgeDirection.getOrientation(i)) != null);
+            tag.setBoolean("connected_" + i, cache.getConnectionOnSide(EnumFacing.getFront(i)) != null);
         tagCompound.setTag("powerHandler", tag);
 
         // TODO
@@ -65,7 +64,7 @@ public class PowerHandler implements IPowerBase, IFace {
 
         double avgVoltage = getVoltage();
         int neighborCount = 1;
-        for (ForgeDirection dir : ForgeDirection.values()) {// Loop through the cache (including UNKNOWN)
+        for (EnumFacing dir : EnumFacing.values()) {// Loop through the cache (including UNKNOWN)
             IConnection<IPowerBase> neighbor = cache.getConnectionOnSide(dir);
             if (neighbor != null) {
                 avgVoltage += neighbor.getB().getVoltage();
@@ -75,7 +74,7 @@ public class PowerHandler implements IPowerBase, IFace {
         avgVoltage /= neighborCount;
 
         addEnergy(avgVoltage - getVoltage(), false);
-        for (ForgeDirection dir : ForgeDirection.values()) {
+        for (EnumFacing dir : EnumFacing.values()) {
             IConnection<IPowerBase> neighbor = cache.getConnectionOnSide(dir);
             if (neighbor != null) {
                 neighbor.getB().addEnergy(avgVoltage - neighbor.getB().getVoltage(), false);
@@ -122,7 +121,7 @@ public class PowerHandler implements IPowerBase, IFace {
     }
 
     @Override
-    public boolean isConnected(ForgeDirection side) {
+    public boolean isConnected(EnumFacing side) {
 
         if (device.getWorld() != null && !device.getWorld().isRemote)
             return cache.getConnectionOnSide(side) != null;
@@ -143,12 +142,12 @@ public class PowerHandler implements IPowerBase, IFace {
     }
 
     @Override
-    public ForgeDirection getFace() {
+    public EnumFacing getFace() {
 
         if (device instanceof IFace)
             return ((IFace) device).getFace();
 
-        return ForgeDirection.UNKNOWN;
+        return null;
     }
 
 }

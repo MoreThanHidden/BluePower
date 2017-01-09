@@ -20,22 +20,22 @@ package com.bluepowermod.helper;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import uk.co.qmunity.lib.vec.Vec3dCube;
+import uk.co.qmunity.lib.vec.Cuboid;
 import uk.co.qmunity.lib.vec.Vec3dHelper;
 
 import java.util.List;
 
-;
+
 
 public class VectorHelper {
 
-    public static final void rotateBoxes(List<Vec3dCube> boxes, EnumFacing face, int rotation) {
+    public static final void rotateBoxes(List<Cuboid> boxes, EnumFacing face, int rotation) {
 
-        for (Vec3dCube box : boxes)
+        for (Cuboid box : boxes)
             rotateBox(box, face, rotation);
     }
 
-    public static final void rotateBox(Vec3dCube box, EnumFacing face, int rotation) {
+    public static final void rotateBox(Cuboid box, EnumFacing face, int rotation) {
 
         box.rotate(0, rotation * 90, 0, Vec3dHelper.CENTER);
         box.rotate(face, Vec3dHelper.CENTER);

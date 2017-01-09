@@ -17,13 +17,13 @@
 
 package com.bluepowermod.part;
 
-import uk.co.qmunity.lib.part.IPart;
 import uk.co.qmunity.lib.part.IPartFactory;
+import uk.co.qmunity.lib.part.IQLPart;
 
 public class PartFactory implements IPartFactory {
 
     @Override
-    public IPart createPart(String type, boolean client) {
+    public IQLPart createPart(String type, boolean client) {
 
         PartInfo info = PartManager.getPartInfo(type);
 

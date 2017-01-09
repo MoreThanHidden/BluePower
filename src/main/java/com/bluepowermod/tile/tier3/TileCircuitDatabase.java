@@ -29,7 +29,7 @@ import net.minecraft.util.text.TextComponentString;
 import java.util.ArrayList;
 import java.util.List;
 
-;
+
 
 public class TileCircuitDatabase extends TileCircuitTable {
 

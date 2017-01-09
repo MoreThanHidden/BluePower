@@ -37,7 +37,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Random;
 
-;
+
 
 public class ItemScrewdriver extends ItemBase implements IScrewdriver {
 

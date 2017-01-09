@@ -7,9 +7,7 @@
  */
 package com.bluepowermod.compat.waila;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.bluepowermod.api.power.IPowered;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaDataProvider;
@@ -17,10 +15,11 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bluepowermod.api.power.IPowered;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author amadornes
@@ -57,9 +56,9 @@ public class WailaProviderPowered implements IWailaDataProvider {
     }
 
     @Override
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World w, int x, int y, int z) {
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
         IPowered machine = (IPowered) te;
-        tag.setDouble("voltage", machine.getPowerHandler(ForgeDirection.UNKNOWN).getVoltage());
+        tag.setDouble("voltage", machine.getPowerHandler(null).getVoltage());
         return tag;
     }
 }

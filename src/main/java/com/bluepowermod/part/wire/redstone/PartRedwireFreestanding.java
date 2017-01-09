@@ -21,44 +21,38 @@ import com.bluepowermod.api.connect.ConnectionType;
 import com.bluepowermod.api.connect.IConnection;
 import com.bluepowermod.api.connect.IConnectionCache;
 import com.bluepowermod.api.connect.IConnectionListener;
-import com.bluepowermod.api.gate.IIntegratedCircuitPart;
-import com.bluepowermod.api.misc.MinecraftColor;
+import com.bluepowermod.api.gate.ic.IIntegratedCircuitPart;
 import com.bluepowermod.api.wire.redstone.IBundledConductor.IAdvancedBundledConductor;
 import com.bluepowermod.api.wire.redstone.*;
 import com.bluepowermod.api.wire.redstone.IRedstoneConductor.IAdvancedRedstoneConductor;
 import com.bluepowermod.client.render.IconSupplier;
 import com.bluepowermod.init.BPCreativeTabs;
-import com.bluepowermod.part.gate.ic.FakeMultipartTileIC;
 import com.bluepowermod.part.wire.PartWireFreestanding;
 import com.bluepowermod.redstone.*;
 import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import uk.co.qmunity.lib.helper.MathHelper;
+import uk.co.qmunity.lib.helper.OcclusionHelper;
 import uk.co.qmunity.lib.helper.RedstoneHelper;
-import uk.co.qmunity.lib.misc.Pair;
-import uk.co.qmunity.lib.part.IPartRedstone;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.part.IRedstonePart;
 import uk.co.qmunity.lib.part.MicroblockShape;
-import uk.co.qmunity.lib.part.compat.OcclusionHelper;
-import uk.co.qmunity.lib.vec.Vec3dCube;
-import uk.co.qmunity.lib.vec.Vec3dHelper;
+import uk.co.qmunity.lib.util.MinecraftColor;
+import uk.co.qmunity.lib.vec.Cuboid;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
-;
+
 
 public abstract class PartRedwireFreestanding extends PartWireFreestanding implements IRedwire, IRedConductor, IIntegratedCircuitPart,
-IPartRedstone {
+        IRedstonePart {
 
     private RedwireType type;
 
@@ -113,43 +107,37 @@ IPartRedstone {
     // Selection and occlusion boxes
 
     @Override
-    public List<Vec3dCube> getSelectionBoxes() {
+    public List<Cuboid> getSelectionBoxes() {
 
-        List<Vec3dCube> boxes = new ArrayList<Vec3dCube>();
+        List<Cuboid> boxes = new ArrayList<Cuboid>();
 
         double size = 8 / 16D;
 
-        boxes.add(new Vec3dCube(0.5 - (size / 2), 0.5 - (size / 2), 0.5 - (size / 2), 0.5 + (size / 2), 0.5 + (size / 2), 0.5 + (size / 2)));
+        boxes.add(new Cuboid(0.5 - (size / 2), 0.5 - (size / 2), 0.5 - (size / 2), 0.5 + (size / 2), 0.5 + (size / 2), 0.5 + (size / 2)));
 
         if (getParent() == null || getWorld() == null)
             return boxes;
 
-        Vec3dCube box = new Vec3dCube(0.5 - (size / 2), 0, 0.5 - (size / 2), 0.5 + (size / 2), 0.5 - (size / 2), 0.5 + (size / 2));
+        Cuboid box = new Cuboid(0.5 - (size / 2), 0, 0.5 - (size / 2), 0.5 + (size / 2), 0.5 - (size / 2), 0.5 + (size / 2));
 
         for (EnumFacing d : EnumFacing.VALUES) {
             if (isConnected(d) || shouldRenderConnection(d))
-                boxes.add(box.clone().rotate(d, Vec3dHelper.CENTER));
+                boxes.add(box);
         }
 
         return boxes;
     }
 
     @Override
-    public List<Vec3dCube> getOcclusionBoxes() {
+    public List<Cuboid> getOcclusionBoxes() {
 
-        List<Vec3dCube> boxes = new ArrayList<Vec3dCube>();
+        List<Cuboid> boxes = new ArrayList<Cuboid>();
 
         double size = 8 / 16D;
 
-        boxes.add(new Vec3dCube(0.5 - (size / 2), 0.5 - (size / 2), 0.5 - (size / 2), 0.5 + (size / 2), 0.5 + (size / 2), 0.5 + (size / 2)));
+        boxes.add(new Cuboid(0.5 - (size / 2), 0.5 - (size / 2), 0.5 - (size / 2), 0.5 + (size / 2), 0.5 + (size / 2), 0.5 + (size / 2)));
 
         return boxes;
-    }
-
-    @Override
-    public void addCollisionBoxesToList(List<Vec3dCube> boxes, Entity entity) {
-
-        boxes.addAll(getSelectionBoxes());
     }
 
     // Conductor
@@ -168,9 +156,9 @@ IPartRedstone {
 
     // NBT
 
-    @Override
-    public void writeUpdateData(DataOutput buffer) throws IOException {
 
+    @Override
+    public void writeUpdateData(MCByteBuf buffer) {
         super.writeUpdateData(buffer);
 
         for (EnumFacing d : EnumFacing.VALUES)
@@ -178,8 +166,7 @@ IPartRedstone {
     }
 
     @Override
-    public void readUpdateData(DataInput buffer) throws IOException {
-
+    public void readUpdateData(MCByteBuf buffer) {
         super.readUpdateData(buffer);
         for (EnumFacing d : EnumFacing.VALUES)
             connections[d.ordinal()] = buffer.readBoolean();
@@ -383,15 +370,13 @@ IPartRedstone {
         }
 
         @Override
-        public void writeUpdateData(DataOutput buffer) throws IOException {
-
+        public void writeUpdateData(MCByteBuf buffer) {
             super.writeUpdateData(buffer);
             buffer.writeByte(power);
         }
 
         @Override
-        public void readUpdateData(DataInput buffer) throws IOException {
-
+        public void readUpdateData(MCByteBuf buffer) {
             super.readUpdateData(buffer);
             power = buffer.readByte();
 
@@ -736,15 +721,13 @@ IPartRedstone {
         }
 
         @Override
-        public void writeUpdateData(DataOutput buffer) throws IOException {
-
+        public void writeUpdateData(MCByteBuf buffer) {
             super.writeUpdateData(buffer);
             buffer.writeByte(power);
         }
 
         @Override
-        public void readUpdateData(DataInput buffer) throws IOException {
-
+        public void readUpdateData(MCByteBuf buffer) {
             super.readUpdateData(buffer);
             power = buffer.readByte();
 
@@ -1073,31 +1056,31 @@ IPartRedstone {
         //
         // // Center
         // if ((s1 && s3) || (s3 && s2) || (s2 && s4) || (s4 && s1)) {
-        // renderer.renderBox(new Vec3dCube(8 / 16D - width - size, height, 8 / 16D - width - size, 8 / 16D + width + size, height
+        // renderer.renderBox(new Cuboid(8 / 16D - width - size, height, 8 / 16D - width - size, 8 / 16D + width + size, height
         // + size, 8 / 16D + width + size), IconSupplier.wire);
         // } else {
         // renderer.renderBox(
-        // new Vec3dCube(8 / 16D - width, height, 8 / 16D - width, 8 / 16D + width, height + size, 8 / 16D + width),
+        // new Cuboid(8 / 16D - width, height, 8 / 16D - width, 8 / 16D + width, height + size, 8 / 16D + width),
         // IconSupplier.wire);
         // }
         // // Sides
         // if (s4 || s3) {
         // if (s3 || (!s1 && !s2))
-        // renderer.renderBox(new Vec3dCube(s3 ? (openConnections[d3.ordinal()] ? -height - size : 0) : 5 / 16D, height,
+        // renderer.renderBox(new Cuboid(s3 ? (openConnections[d3.ordinal()] ? -height - size : 0) : 5 / 16D, height,
         // 8 / 16D - width, 8 / 16D - width, height + size, 8 / 16D + width), IconSupplier.wire);
         // if (s4 || (!s1 && !s2))
-        // renderer.renderBox(new Vec3dCube(8 / 16D + width, height, 8 / 16D - width, s4 ? (openConnections[d4.ordinal()] ? 1
+        // renderer.renderBox(new Cuboid(8 / 16D + width, height, 8 / 16D - width, s4 ? (openConnections[d4.ordinal()] ? 1
         // + height + size : 1) : 11 / 16D, height + size, 8 / 16D + width), IconSupplier.wire);
         // if (s1)
-        // renderer.renderBox(new Vec3dCube(8 / 16D - width, height, s1 ? (openConnections[d1.ordinal()] ? -height - size : 0)
+        // renderer.renderBox(new Cuboid(8 / 16D - width, height, s1 ? (openConnections[d1.ordinal()] ? -height - size : 0)
         // : 4 / 16D, 8 / 16D + width, height + size, 8 / 16D - width), IconSupplier.wire);
         // if (s2)
-        // renderer.renderBox(new Vec3dCube(8 / 16D - width, height, 8 / 16D + width, 8 / 16D + width, height + size,
+        // renderer.renderBox(new Cuboid(8 / 16D - width, height, 8 / 16D + width, 8 / 16D + width, height + size,
         // s2 ? (openConnections[d2.ordinal()] ? 1 + height + size : 1) : 12 / 16D), IconSupplier.wire);
         // } else {
-        // renderer.renderBox(new Vec3dCube(8 / 16D - width, height, s1 ? (openConnections[d1.ordinal()] ? -height - size : 0)
+        // renderer.renderBox(new Cuboid(8 / 16D - width, height, s1 ? (openConnections[d1.ordinal()] ? -height - size : 0)
         // : 5 / 16D, 8 / 16D + width, height + size, 8 / 16D - width), IconSupplier.wire);
-        // renderer.renderBox(new Vec3dCube(8 / 16D - width, height, 8 / 16D + width, 8 / 16D + width, height + size,
+        // renderer.renderBox(new Cuboid(8 / 16D - width, height, 8 / 16D + width, 8 / 16D + width, height + size,
         // s2 ? (openConnections[d2.ordinal()] ? 1 + height + size : 1) : 11 / 16D), IconSupplier.wire);
         // }
         // //
@@ -1106,34 +1089,33 @@ IPartRedstone {
         // //
         // // if (s4 || s3) {
         // // if (s3 || (!s1 && !s2))
-        // // renderer.renderBox(new Vec3dCube(4 / 16D - len, 0, 8 / 16D - width, 4 / 16D, 2 / 16D, 8 / 16D + width),
+        // // renderer.renderBox(new Cuboid(4 / 16D - len, 0, 8 / 16D - width, 4 / 16D, 2 / 16D, 8 / 16D + width),
         // // IconSupplier.wire);
         // //
         // // if (s4 || (!s1 && !s2)) {
-        // // renderer.renderBox(new Vec3dCube(12 / 16D, 0, 8 / 16D - width, 12 / 16D + len, 2 / 16D, 8 / 16D + width),
+        // // renderer.renderBox(new Cuboid(12 / 16D, 0, 8 / 16D - width, 12 / 16D + len, 2 / 16D, 8 / 16D + width),
         // // IconSupplier.wire);
         // // }
         // // } else {
         // // if (!s1)
-        // // renderer.renderBox(new Vec3dCube(8 / 16D - width, 0, 4 / 16D - len, 8 / 16D + width, 2 / 16D, 4 / 16D),
+        // // renderer.renderBox(new Cuboid(8 / 16D - width, 0, 4 / 16D - len, 8 / 16D + width, 2 / 16D, 4 / 16D),
         // // IconSupplier.wire);
         // // if (!s2)
-        // // renderer.renderBox(new Vec3dCube(8 / 16D - width, 0, 12 / 16D, 8 / 16D + width, 2 / 16D, 12 / 16D + len),
+        // // renderer.renderBox(new Cuboid(8 / 16D - width, 0, 12 / 16D, 8 / 16D + width, 2 / 16D, 12 / 16D + len),
         // // IconSupplier.wire);
         // // }
         //
         // return true;
         // }
 
-        @Override
-        public void writeUpdateData(DataOutput buffer) throws IOException {
 
+        @Override
+        public void writeUpdateData(MCByteBuf buffer) {
             super.writeUpdateData(buffer);
         }
 
         @Override
-        public void readUpdateData(DataInput buffer) throws IOException {
-
+        public void readUpdateData(MCByteBuf buffer) {
             super.readUpdateData(buffer);
 
             if (getParent() != null && getWorld() != null)

@@ -7,13 +7,14 @@
  */
 package com.bluepowermod.api;
 
+import com.bluepowermod.api.power.IPowerApi;
 import com.bluepowermod.api.recipe.IAlloyFurnaceRegistry;
 import com.bluepowermod.api.wire.redstone.IRedstoneApi;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Loader;
-import uk.co.qmunity.lib.part.IPart;
+import uk.co.qmunity.lib.part.IQLPart;
 
 /**
  * This is then main hub where you can interface with BluePower as a modder. Note that the 'instance' in this class will be filled in BluePower's
@@ -36,6 +37,8 @@ public class BPApi {
 
         public IAlloyFurnaceRegistry getAlloyFurnaceRegistry();
 
+        public IPowerApi getPowerApi();
+
         /**
          * Should be called by an Block#onBlockAdded that implements ISilkyRemovable. It will get the TileEntity and load the tag "tileData" stored in
          * the supplied itemstack.
@@ -52,7 +55,7 @@ public class BPApi {
          * @param part
          * @param stack
          */
-        public void loadSilkySettings(IPart part, ItemStack stack);
+        public void loadSilkySettings(IQLPart part, ItemStack stack);
 
         public IRedstoneApi getRedstoneApi();
     }

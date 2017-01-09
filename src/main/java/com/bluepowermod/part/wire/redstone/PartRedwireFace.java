@@ -21,16 +21,14 @@ import com.bluepowermod.api.connect.ConnectionType;
 import com.bluepowermod.api.connect.IConnection;
 import com.bluepowermod.api.connect.IConnectionCache;
 import com.bluepowermod.api.connect.IConnectionListener;
-import com.bluepowermod.api.gate.IIntegratedCircuitPart;
+import com.bluepowermod.api.gate.ic.IIntegratedCircuitPart;
 import com.bluepowermod.api.misc.IFace;
-import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.api.wire.redstone.IBundledConductor.IAdvancedBundledConductor;
 import com.bluepowermod.api.wire.redstone.*;
 import com.bluepowermod.api.wire.redstone.IRedstoneConductor.IAdvancedRedstoneConductor;
 import com.bluepowermod.client.render.IconSupplier;
 import com.bluepowermod.helper.VectorHelper;
 import com.bluepowermod.init.BPCreativeTabs;
-import com.bluepowermod.part.gate.ic.FakeMultipartTileIC;
 import com.bluepowermod.part.wire.PartWireFace;
 import com.bluepowermod.redstone.*;
 import net.minecraft.block.BlockRedstoneWire;
@@ -39,15 +37,16 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
-import uk.co.qmunity.lib.client.render.RenderHelper;
+import uk.co.qmunity.lib.client.render.RenderContext;
 import uk.co.qmunity.lib.helper.MathHelper;
+import uk.co.qmunity.lib.helper.OcclusionHelper;
 import uk.co.qmunity.lib.helper.RedstoneHelper;
-import uk.co.qmunity.lib.misc.Pair;
-import uk.co.qmunity.lib.part.IPartRedstone;
-import uk.co.qmunity.lib.part.IPartTicking;
+import uk.co.qmunity.lib.model.IVertexConsumer;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.part.IRedstonePart;
 import uk.co.qmunity.lib.part.MicroblockShape;
-import uk.co.qmunity.lib.part.compat.OcclusionHelper;
-import uk.co.qmunity.lib.vec.Vec3dCube;
+import uk.co.qmunity.lib.util.MinecraftColor;
+import uk.co.qmunity.lib.vec.Cuboid;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -57,7 +56,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
-public abstract class PartRedwireFace extends PartWireFace implements IRedwire, IRedConductor, IIntegratedCircuitPart, IPartRedstone {
+public abstract class PartRedwireFace extends PartWireFace implements IRedwire, IRedConductor, IIntegratedCircuitPart, IRedstonePart {
 
     private RedwireType type;
 
@@ -119,25 +118,25 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
     // Selection and occlusion boxes
 
     @Override
-    public List<Vec3dCube> getSelectionBoxes() {
+    public List<Cuboid> getSelectionBoxes() {
 
-        List<Vec3dCube> boxes = new ArrayList<Vec3dCube>();
+        List<Cuboid> boxes = new ArrayList<Cuboid>();
 
-        boxes.add(new Vec3dCube(0, 0, 0, 1, getHeight() / 16D, 1).expand(-0.000001));
+        boxes.add(new Cuboid(0, 0, 0, 1, getHeight() / 16D, 1).expand(-0.000001));
 
         VectorHelper.rotateBoxes(boxes, getFace(), 0);
         return boxes;
     }
 
     @Override
-    public List<Vec3dCube> getOcclusionBoxes() {
+    public List<Cuboid> getOcclusionBoxes() {
 
-        List<Vec3dCube> boxes = new ArrayList<Vec3dCube>();
+        List<Cuboid> boxes = new ArrayList<Cuboid>();
 
         double h = getHeight() / 16D;
         double d = 4 / 16D;
 
-        boxes.add(new Vec3dCube(d, 0, d, 1 - d, h, 1 - d));
+        boxes.add(new Cuboid(d, 0, d, 1 - d, h, 1 - d));
 
         VectorHelper.rotateBoxes(boxes, getFace(), 0);
         return boxes;
@@ -163,8 +162,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
     protected boolean[] cornerRender = new boolean[6];
 
     @Override
-    public void writeUpdateData(DataOutput buffer) throws IOException {
-
+    public void writeUpdateData(MCByteBuf buffer) {
         super.writeUpdateData(buffer);
 
         for (EnumFacing d : EnumFacing.VALUES)
@@ -172,8 +170,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
     }
 
     @Override
-    public void readUpdateData(DataInput buffer) throws IOException {
-
+    public void readUpdateData(MCByteBuf buffer) {
         super.readUpdateData(buffer);
         for (EnumFacing d : EnumFacing.VALUES)
             connections[d.ordinal()] = buffer.readBoolean();
@@ -196,8 +193,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
         return BPCreativeTabs.wiring;
     }
 
-    public static class PartRedwireFaceUninsulated extends PartRedwireFace implements IAdvancedRedstoneConductor, IConnectionListener,
-            IPartTicking {
+    public static class PartRedwireFaceUninsulated extends PartRedwireFace implements IAdvancedRedstoneConductor, IConnectionListener{
 
         private RedstoneConnectionCache connections = RedstoneApi.getInstance().createRedstoneConnectionCache(this);
         private boolean hasUpdated = false;
@@ -409,8 +405,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
         }
 
         @Override
-        public void writeUpdateData(DataOutput buffer) throws IOException {
-
+        public void writeUpdateData(MCByteBuf buffer) {
             super.writeUpdateData(buffer);
 
             for (int i = 0; i < 6; i++) {
@@ -442,8 +437,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
         }
 
         @Override
-        public void readUpdateData(DataInput buffer) throws IOException {
-
+        public void readUpdateData(MCByteBuf buffer) {
             super.readUpdateData(buffer);
             power = buffer.readByte();
 
@@ -501,7 +495,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
     }
 
     public static class PartRedwireFaceInsulated extends PartRedwireFace implements IAdvancedRedstoneConductor, IInsulatedRedstoneDevice,
-            IAdvancedBundledConductor, IConnectionListener, IInsulatedRedwire, IPartTicking {
+            IAdvancedBundledConductor, IConnectionListener, IInsulatedRedwire {
 
         private RedstoneConnectionCache connections = RedstoneApi.getInstance().createRedstoneConnectionCache(this);
         private BundledConnectionCache bundledConnections = RedstoneApi.getInstance().createBundledConnectionCache(this);
@@ -822,8 +816,8 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
         }
 
         @Override
-        public boolean renderStatic(Vec3i translation, RenderHelper renderer, VertexBuffer buffer, int pass) {
-            super.renderStatic(translation, renderer, buffer, pass);
+        public boolean renderStatic(RenderContext context, IVertexConsumer consumer, int pass) {
+            super.renderStatic(context, consumer, pass);
 
             EnumFacing d1 = EnumFacing.NORTH;
             EnumFacing d2 = EnumFacing.SOUTH;
@@ -869,30 +863,30 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
 
             // Center
             if ((s1 && s3) || (s3 && s2) || (s2 && s4) || (s4 && s1)) {
-                renderer.renderBox(new Vec3dCube(8 / 16D - width - size, y, 8 / 16D - width - size, 8 / 16D + width + size, height + size,
+                renderer.renderBox(new Cuboid(8 / 16D - width - size, y, 8 / 16D - width - size, 8 / 16D + width + size, height + size,
                         8 / 16D + width + size), IconSupplier.wire);
             } else {
-                renderer.renderBox(new Vec3dCube(8 / 16D - width, y, 8 / 16D - width, 8 / 16D + width, height + size, 8 / 16D + width),
+                renderer.renderBox(new Cuboid(8 / 16D - width, y, 8 / 16D - width, 8 / 16D + width, height + size, 8 / 16D + width),
                         IconSupplier.wire);
             }
             // Sides
             if (s4 || s3) {
                 if (s3 || (!s1 && !s2))
-                    renderer.renderBox(new Vec3dCube(s3 ? (cornerConnect[d3.ordinal()] ? -height - size : 0.001) : 5 / 16D, y,
+                    renderer.renderBox(new Cuboid(s3 ? (cornerConnect[d3.ordinal()] ? -height - size : 0.001) : 5 / 16D, y,
                             8 / 16D - width, 8 / 16D - width, height + size, 8 / 16D + width), IconSupplier.wire);
                 if (s4 || (!s1 && !s2))
-                    renderer.renderBox(new Vec3dCube(8 / 16D + width, y, 8 / 16D - width, s4 ? (cornerConnect[d4.ordinal()] ? 1 + height
+                    renderer.renderBox(new Cuboid(8 / 16D + width, y, 8 / 16D - width, s4 ? (cornerConnect[d4.ordinal()] ? 1 + height
                             + size : 0.999) : 11 / 16D, height + size, 8 / 16D + width), IconSupplier.wire);
                 if (s1)
-                    renderer.renderBox(new Vec3dCube(8 / 16D - width, y, s1 ? (cornerConnect[d1.ordinal()] ? -height - size : 0.001)
+                    renderer.renderBox(new Cuboid(8 / 16D - width, y, s1 ? (cornerConnect[d1.ordinal()] ? -height - size : 0.001)
                             : 4 / 16D, 8 / 16D + width, height + size, 8 / 16D - width), IconSupplier.wire);
                 if (s2)
-                    renderer.renderBox(new Vec3dCube(8 / 16D - width, y, 8 / 16D + width, 8 / 16D + width, height + size,
+                    renderer.renderBox(new Cuboid(8 / 16D - width, y, 8 / 16D + width, 8 / 16D + width, height + size,
                             s2 ? (cornerConnect[d2.ordinal()] ? 1 + height + size : 0.999) : 12 / 16D), IconSupplier.wire);
             } else {
-                renderer.renderBox(new Vec3dCube(8 / 16D - width, y, s1 ? (cornerConnect[d1.ordinal()] ? -height - size : 0.001) : 5 / 16D,
+                renderer.renderBox(new Cuboid(8 / 16D - width, y, s1 ? (cornerConnect[d1.ordinal()] ? -height - size : 0.001) : 5 / 16D,
                         8 / 16D + width, height + size, 8 / 16D - width), IconSupplier.wire);
-                renderer.renderBox(new Vec3dCube(8 / 16D - width, y, 8 / 16D + width, 8 / 16D + width, height + size,
+                renderer.renderBox(new Cuboid(8 / 16D - width, y, 8 / 16D + width, 8 / 16D + width, height + size,
                         s2 ? (cornerConnect[d2.ordinal()] ? 1 + height + size : 0.999) : 11 / 16D), IconSupplier.wire);
             }
 
@@ -901,19 +895,19 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
 
             if (s4 || s3) {
                 if (s3 || (!s1 && !s2))
-                    renderer.renderBox(new Vec3dCube(4 / 16D - len, 0, 8 / 16D - width, 4 / 16D, 2 / 16D, 8 / 16D + width),
+                    renderer.renderBox(new Cuboid(4 / 16D - len, 0, 8 / 16D - width, 4 / 16D, 2 / 16D, 8 / 16D + width),
                             IconSupplier.wire);
 
                 if (s4 || (!s1 && !s2)) {
-                    renderer.renderBox(new Vec3dCube(12 / 16D, 0, 8 / 16D - width, 12 / 16D + len, 2 / 16D, 8 / 16D + width),
+                    renderer.renderBox(new Cuboid(12 / 16D, 0, 8 / 16D - width, 12 / 16D + len, 2 / 16D, 8 / 16D + width),
                             IconSupplier.wire);
                 }
             } else {
                 if (!s1)
-                    renderer.renderBox(new Vec3dCube(8 / 16D - width, 0, 4 / 16D - len, 8 / 16D + width, 2 / 16D, 4 / 16D),
+                    renderer.renderBox(new Cuboid(8 / 16D - width, 0, 4 / 16D - len, 8 / 16D + width, 2 / 16D, 4 / 16D),
                             IconSupplier.wire);
                 if (!s2)
-                    renderer.renderBox(new Vec3dCube(8 / 16D - width, 0, 12 / 16D, 8 / 16D + width, 2 / 16D, 12 / 16D + len),
+                    renderer.renderBox(new Cuboid(8 / 16D - width, 0, 12 / 16D, 8 / 16D + width, 2 / 16D, 12 / 16D + len),
                             IconSupplier.wire);
             }
 
@@ -921,8 +915,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
         }
 
         @Override
-        public void writeUpdateData(DataOutput buffer) throws IOException {
-
+        public void writeUpdateData(MCByteBuf buffer) {
             super.writeUpdateData(buffer);
 
             for (int i = 0; i < 6; i++) {
@@ -988,8 +981,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
         }
 
         @Override
-        public void readUpdateData(DataInput buffer) throws IOException {
-
+        public void readUpdateData(MCByteBuf buffer) {
             super.readUpdateData(buffer);
             power = buffer.readByte();
 
@@ -1285,9 +1277,10 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
             RedstoneApi.getInstance().setWiresHandleUpdates(should);
         }
 
+
         @Override
-        public boolean renderStatic(Vec3i translation, RenderHelper renderer, VertexBuffer buffer, int pass) {
-            super.renderStatic(translation, renderer, buffer, pass);
+        public boolean renderStatic(RenderContext context, IVertexConsumer consumer, int pass) {
+            super.renderStatic(context, consumer, pass);
 
             EnumFacing d1 = EnumFacing.NORTH;
             EnumFacing d2 = EnumFacing.SOUTH;
@@ -1333,31 +1326,31 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
 
             // Center
             if ((s1 && s3) || (s3 && s2) || (s2 && s4) || (s4 && s1)) {
-                renderer.renderBox(new Vec3dCube(8 / 16D - width - size, height, 8 / 16D - width - size, 8 / 16D + width + size, height
+                renderer.renderBox(new Cuboid(8 / 16D - width - size, height, 8 / 16D - width - size, 8 / 16D + width + size, height
                         + size, 8 / 16D + width + size), IconSupplier.wire);
             } else {
                 renderer.renderBox(
-                        new Vec3dCube(8 / 16D - width, height, 8 / 16D - width, 8 / 16D + width, height + size, 8 / 16D + width),
+                        new Cuboid(8 / 16D - width, height, 8 / 16D - width, 8 / 16D + width, height + size, 8 / 16D + width),
                         IconSupplier.wire);
             }
             // Sides
             if (s4 || s3) {
                 if (s3 || (!s1 && !s2))
-                    renderer.renderBox(new Vec3dCube(s3 ? (cornerConnect[d3.ordinal()] ? -height - size : -size) : 5 / 16D, y,
+                    renderer.renderBox(new Cuboid(s3 ? (cornerConnect[d3.ordinal()] ? -height - size : -size) : 5 / 16D, y,
                             8 / 16D - width, 8 / 16D - width, height + size, 8 / 16D + width), IconSupplier.wire);
                 if (s4 || (!s1 && !s2))
-                    renderer.renderBox(new Vec3dCube(8 / 16D + width, y, 8 / 16D - width, s4 ? (cornerConnect[d4.ordinal()] ? 1 + height
+                    renderer.renderBox(new Cuboid(8 / 16D + width, y, 8 / 16D - width, s4 ? (cornerConnect[d4.ordinal()] ? 1 + height
                             + size : 1 + size) : 11 / 16D, height + size, 8 / 16D + width), IconSupplier.wire);
                 if (s1)
-                    renderer.renderBox(new Vec3dCube(8 / 16D - width, y, s1 ? (cornerConnect[d1.ordinal()] ? -height - size : -size)
+                    renderer.renderBox(new Cuboid(8 / 16D - width, y, s1 ? (cornerConnect[d1.ordinal()] ? -height - size : -size)
                             : 4 / 16D, 8 / 16D + width, height + size, 8 / 16D - width), IconSupplier.wire);
                 if (s2)
-                    renderer.renderBox(new Vec3dCube(8 / 16D - width, y, 8 / 16D + width, 8 / 16D + width, height + size,
+                    renderer.renderBox(new Cuboid(8 / 16D - width, y, 8 / 16D + width, 8 / 16D + width, height + size,
                             s2 ? (cornerConnect[d2.ordinal()] ? 1 + height + size : 1 + size) : 12 / 16D), IconSupplier.wire);
             } else {
-                renderer.renderBox(new Vec3dCube(8 / 16D - width, y, s1 ? (cornerConnect[d1.ordinal()] ? -height - size : -size) : 5 / 16D,
+                renderer.renderBox(new Cuboid(8 / 16D - width, y, s1 ? (cornerConnect[d1.ordinal()] ? -height - size : -size) : 5 / 16D,
                         8 / 16D + width, height + size, 8 / 16D - width), IconSupplier.wire);
-                renderer.renderBox(new Vec3dCube(8 / 16D - width, y, 8 / 16D + width, 8 / 16D + width, height + size,
+                renderer.renderBox(new Cuboid(8 / 16D - width, y, 8 / 16D + width, 8 / 16D + width, height + size,
                         s2 ? (cornerConnect[d2.ordinal()] ? 1 + height + size : 1 + size) : 11 / 16D), IconSupplier.wire);
             }
 
@@ -1365,8 +1358,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
         }
 
         @Override
-        public void writeUpdateData(DataOutput buffer) throws IOException {
-
+        public void writeUpdateData(MCByteBuf buffer) {
             super.writeUpdateData(buffer);
 
             for (int i = 0; i < 6; i++) {
@@ -1399,8 +1391,7 @@ public abstract class PartRedwireFace extends PartWireFace implements IRedwire, 
         }
 
         @Override
-        public void readUpdateData(DataInput buffer) throws IOException {
-
+        public void readUpdateData(MCByteBuf buffer) {
             super.readUpdateData(buffer);
 
             if (getParent() != null && getWorld() != null)

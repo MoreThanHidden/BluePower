@@ -31,7 +31,7 @@ public class Debugger {
         indicateBlock(te.getWorld(), te.getPos());
     }
 
-    public static void indicateBlock(IPart part) {
+    public static void indicateBlock(IQLPart part) {
 
         indicateBlock(part.getWorld(),part.getPos());
     }

@@ -1,8 +1,7 @@
 package com.bluepowermod.api.wire.redstone;
 
-import net.minecraft.util.EnumFacing;;
-
-import com.bluepowermod.api.misc.MinecraftColor;
+import net.minecraft.util.EnumFacing;
+import uk.co.qmunity.lib.util.MinecraftColor;
 
 public interface IInsulatedRedstoneDevice extends IRedstoneDevice {
 

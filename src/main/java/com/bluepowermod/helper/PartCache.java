@@ -19,12 +19,12 @@ package com.bluepowermod.helper;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import uk.co.qmunity.lib.part.IPart;
-import uk.co.qmunity.lib.part.compat.MultipartCompatibility;
+import uk.co.qmunity.lib.part.IQLPart;
+import uk.co.qmunity.lib.part.MultipartCompat;
 
-public class PartCache<CachedPart extends IPart> extends LocationCache<CachedPart> {
+public class PartCache<CachedPart extends IQLPart> extends LocationCache<CachedPart> {
 
-    public <T> PartCache(World world, BlockPos pos, Class<? extends IPart> searchedParts) {
+    public <T> PartCache(World world, BlockPos pos, Class<? extends IQLPart> searchedParts) {
 
         super(world, pos, searchedParts);
     }
@@ -33,7 +33,7 @@ public class PartCache<CachedPart extends IPart> extends LocationCache<CachedPar
     @Override
     protected CachedPart getNewValue(World world, BlockPos pos, Object... extraArgs) {
 
-        return (CachedPart) MultipartCompatibility.getPart(world, pos, (Class<? extends IPart>) extraArgs[0]);
+        return (CachedPart) MultipartCompat.getPart(world, pos, (Class<? extends IQLPart>) extraArgs[0]);
     }
 
 }

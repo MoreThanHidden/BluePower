@@ -16,14 +16,14 @@ public class PartConverterGate implements IPartConverter {
     }
 
     @Override
-    public IPart convert(NBTTagCompound old) {
+    public IQLPart convert(NBTTagCompound old) {
 
         String id = old.getString("part_id");
         PartInfo info = PartManager.getPartInfo(id);
         if (info == null)
             return null;
 
-        IPart p = info.create();
+        IQLPart p = info.create();
 
         if (!(p instanceof GateBase))
             return null;

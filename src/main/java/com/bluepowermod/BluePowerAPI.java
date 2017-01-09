@@ -9,8 +9,10 @@ package com.bluepowermod;
 
 import com.bluepowermod.api.BPApi.IBPApi;
 import com.bluepowermod.api.block.IAdvancedSilkyRemovable;
+import com.bluepowermod.api.power.IPowerApi;
 import com.bluepowermod.api.recipe.IAlloyFurnaceRegistry;
 import com.bluepowermod.api.wire.redstone.IRedstoneApi;
+import com.bluepowermod.power.PowerApi;
 import com.bluepowermod.recipe.AlloyFurnaceRegistry;
 import com.bluepowermod.redstone.RedstoneApi;
 import net.minecraft.block.Block;
@@ -19,7 +21,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import uk.co.qmunity.lib.part.IPart;
+import uk.co.qmunity.lib.part.IQLPart;
 
 public class BluePowerAPI implements IBPApi {
 
@@ -64,7 +66,7 @@ public class BluePowerAPI implements IBPApi {
 
 
     @Override
-    public void loadSilkySettings(IPart part, ItemStack stack) {
+    public void loadSilkySettings(IQLPart part, ItemStack stack) {
 
         if (stack.isEmpty())
             throw new IllegalArgumentException("ItemStack is empty!");
@@ -92,6 +94,14 @@ public class BluePowerAPI implements IBPApi {
             }
         }
     }
+
+    @Override
+    public IPowerApi getPowerApi(){
+
+        return PowerApi.getInstance();
+
+    }
+
 
     @Override
     public IRedstoneApi getRedstoneApi() {

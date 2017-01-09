@@ -1,7 +1,8 @@
 package com.bluepowermod.api.power;
 
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public interface IPowerApi {
 
@@ -11,19 +12,15 @@ public interface IPowerApi {
      *
      * @param world
      *            The world where the device is
-     * @param x
-     *            X coordinate of the device
-     * @param y
-     *            Y coordinate of the device
-     * @param z
-     *            Z coordinate of the device
+     * @param pos
+     *            coordinate of the device
      * @param side
      *            Side of the device we're looking for
      * @param face
-     *            Face the device must be placed on or {@link ForgeDirection#UNKNOWN} if not know or not a face device
+     *            Face the device must be placed on or {@link null} if not know or not a face device
      * @return The powered device at the specified coords, side and face.
      */
-    public IPowered getPoweredDeviceAt(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side);
+    public IPowered getPoweredDeviceAt(World world, BlockPos pos, EnumFacing face, EnumFacing side);
 
     /**
      * Registers a redstone/bundled device provider.

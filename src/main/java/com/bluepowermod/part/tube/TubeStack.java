@@ -29,9 +29,9 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
-import uk.co.qmunity.lib.vec.Vec3dCube;
+import uk.co.qmunity.lib.vec.Cuboid;
 
-;
+
 
 /**
  *
@@ -231,7 +231,7 @@ public class TubeStack {
             float size = 0.02F;
             GL11.glDisable(GL11.GL_TEXTURE_2D);
             GL11.glBegin(GL11.GL_QUADS);
-            RenderHelper.drawColoredCube(new Vec3dCube(-size, -size, -size, size, size, size), 1, 1, 1, 1);
+            RenderHelper.drawColoredCube(new Cuboid(-size, -size, -size, size, size, size), 1, 1, 1, 1);
             GL11.glEnd();
             GL11.glEnable(GL11.GL_TEXTURE_2D);
         }
@@ -249,7 +249,7 @@ public class TubeStack {
             GL11.glDisable(GL11.GL_LIGHTING);
             GL11.glColor3f(red, green, blue);
             Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(Refs.MODID, "textures/blocks/tubes/inside_color_border.png"));
-            RenderHelper.drawTesselatedTexturedCube(new Vec3dCube(-size, -size, -size, size, size, size));
+            RenderHelper.drawTesselatedTexturedCube(new Cuboid(-size, -size, -size, size, size, size));
             GL11.glEnable(GL11.GL_CULL_FACE);
             GL11.glEnable(GL11.GL_LIGHTING);
         }

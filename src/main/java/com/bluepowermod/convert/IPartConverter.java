@@ -24,6 +24,6 @@ public interface IPartConverter {
 
     public boolean matches(String id);
 
-    public IPart convert(NBTTagCompound old);
+    public IQLPart convert(NBTTagCompound old);
 
 }

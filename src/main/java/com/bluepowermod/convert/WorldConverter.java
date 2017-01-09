@@ -164,7 +164,7 @@ public class WorldConverter {
             String id = part.getString("id");
             for (IPartConverter c : converters) {
                 if (c.matches(id)) {
-                    IPart p = c.convert(part);
+                    IQLPart p = c.convert(part);
                     if (p == null)
                         continue;
                     fmppart.addPart(p);

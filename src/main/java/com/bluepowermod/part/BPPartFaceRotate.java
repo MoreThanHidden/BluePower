@@ -17,20 +17,14 @@
 
 package com.bluepowermod.part;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import uk.co.qmunity.lib.part.IPart;
-import uk.co.qmunity.lib.part.IPartPlacement;
+import uk.co.qmunity.lib.network.MCByteBuf;
+import uk.co.qmunity.lib.part.IQLPart;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-public abstract class BPPartFaceRotate extends BPPartFace {
+public abstract class BPPartFaceRotate extends BPPartFace{
 
     private int rotation = 0;
 
@@ -62,35 +56,21 @@ public abstract class BPPartFaceRotate extends BPPartFace {
     }
 
     @Override
-    public void writeUpdateData(DataOutput buffer) throws IOException {
-
+    public void writeUpdateData(MCByteBuf buffer) {
         super.writeUpdateData(buffer);
         buffer.writeInt(rotation);
     }
 
     @Override
-    public void readUpdateData(DataInput buffer) throws IOException {
-
+    public void readUpdateData(MCByteBuf buffer){
         super.readUpdateData(buffer);
         rotation = buffer.readInt();
     }
 
     @Override
-    public IPartPlacement getPlacement(IPart part, World world, BlockPos location, EnumFacing face, RayTraceResult mop,
-                                       EntityPlayer player) {
-
-        int rot = PartRotationHelper.getPlacementRotation(mop);
-
-        if (face == EnumFacing.UP || face == EnumFacing.NORTH || face == EnumFacing.WEST)
-            rot += 2;
-        if (face == EnumFacing.DOWN || face == EnumFacing.EAST)
-            if (rot == 0 || rot == 2)
-                rot += 2;
-        if (face == EnumFacing.SOUTH)
-            if (rot == 1 || rot == 3)
-                rot += 2;
-
-        return new PartPlacementFaceRotate(face.getOpposite(), rot % 4);
+    public boolean placePart(IQLPart part, World world, BlockPos location, EnumFacing face, boolean simulated) {
+        super.placePart(part, world, location, face, simulated);
+        ((BPPartFaceRotate)part).setRotation((int)face.getHorizontalAngle());
+        return true;
     }
-
 }

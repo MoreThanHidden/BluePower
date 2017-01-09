@@ -10,7 +10,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.common.util.EnumFacing;
 
 
 /**
@@ -49,7 +49,7 @@ public class BlockThermopile extends BlockContainerBase {
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
 
-        ForgeDirection s = ForgeDirection.getOrientation(side);
+        EnumFacing s = EnumFacing.getOrientation(side);
         // If is facing
 
         switch (s) {

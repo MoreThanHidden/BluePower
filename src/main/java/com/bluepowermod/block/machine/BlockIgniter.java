@@ -33,7 +33,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-;
+
 
 public class BlockIgniter extends BlockContainerBase {
     

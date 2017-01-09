@@ -23,13 +23,13 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import com.bluepowermod.tile.tier3.TileKinectGenerator;
+import com.bluepowermod.tile.tier3.TileKineticGenerator;
 
 public class ContainerKinect extends Container {
 
-    private final TileKinectGenerator tilekinect;
+    private final TileKineticGenerator tilekinect;
 
-    public ContainerKinect(InventoryPlayer invPlayer, TileKinectGenerator kinect) {
+    public ContainerKinect(InventoryPlayer invPlayer, TileKineticGenerator kinect) {
 
         tilekinect = kinect;
         

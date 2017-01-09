@@ -1,18 +1,21 @@
 package com.bluepowermod.client.render;
 
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.IIcon;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import org.lwjgl.opengl.GL11;
 
 public class GuiRenderHelper {
 
-    private static IIcon icon = null;
+    private static TextureAtlasSprite icon = null;
 
-    public static void setIcon(IIcon icon) {
+    public static void setIcon(TextureAtlasSprite icon) {
 
         GuiRenderHelper.icon = icon;
     }
 
-    public static IIcon getIcon() {
+    public static TextureAtlasSprite getIcon() {
 
         return icon;
     }
@@ -35,13 +38,14 @@ public class GuiRenderHelper {
     public static void renderTexturedBox(double x, double y, double width, double height, double z, double u1, double v1, double u2, double v2,
             int color) {
 
-        Tessellator tessellator = Tessellator.instance;
-        tessellator.startDrawingQuads();
-        tessellator.setColorOpaque_I(color);
-        tessellator.addVertexWithUV(x, y + height, z, getU(u1), getV(v2));
-        tessellator.addVertexWithUV(x + width, y + height, z, getU(u2), getV(v2));
-        tessellator.addVertexWithUV(x + width, y, z, getU(u2), getV(v1));
-        tessellator.addVertexWithUV(x, y, z, getU(u1), getV(v1));
+        Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer buffer = tessellator.getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        buffer.putColor4(color);
+        buffer.pos(x, y + height, z).tex(getU(u1), getV(v2));
+        buffer.pos(x + width, y + height, z).tex(getU(u2), getV(v2));
+        buffer.pos(x + width, y, z).tex(getU(u2), getV(v1));
+        buffer.pos(x, y, z).tex(getU(u1), getV(v1));
         tessellator.draw();
     }
 }

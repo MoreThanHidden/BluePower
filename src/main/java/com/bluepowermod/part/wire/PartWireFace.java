@@ -18,18 +18,18 @@ package com.bluepowermod.part.wire;
 
 import com.bluepowermod.part.BPPartFace;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import uk.co.qmunity.lib.client.render.RenderHelper;
-import uk.co.qmunity.lib.transform.Rotation;
-import uk.co.qmunity.lib.vec.Vec3dCube;
-import uk.co.qmunity.lib.vec.Vec3dHelper;
+import uk.co.qmunity.lib.client.RenderHelper;
+import uk.co.qmunity.lib.client.render.RenderContext;
+import uk.co.qmunity.lib.model.IVertexConsumer;
+import uk.co.qmunity.lib.vec.Cuboid;
 
-;
+
 
 
 public abstract class PartWireFace extends BPPartFace {
@@ -61,8 +61,7 @@ public abstract class PartWireFace extends BPPartFace {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean renderStatic(Vec3i translation, RenderHelper renderer, VertexBuffer buffer, int pass) {
+    public boolean renderStatic(RenderContext context, IVertexConsumer consumer, int pass) {
         GlStateManager.disableLighting();
         GlStateManager.enableLight(getBrightness());
 
@@ -92,31 +91,34 @@ public abstract class PartWireFace extends BPPartFace {
             d4 = EnumFacing.WEST;
         }
 
+        Tessellator t = Tessellator.getInstance();
+        VertexBuffer buffer = t.getBuffer();
+
         switch (getFace()) {
         case DOWN:
             break;
         case UP:
-            renderer.addTransformation(new Rotation(180, 180, 0, Vec3dHelper.CENTER));
+            //renderer.addTransformation(new Rotation(180, 180, 0, Vec3dHelper.CENTER));
             break;
         case NORTH:
-            renderer.addTransformation(new Rotation(90, 90, 0, Vec3dHelper.CENTER));
+            //renderer.addTransformation(new Rotation(90, 90, 0, Vec3dHelper.CENTER));
             d1 = d1.rotateAround(getFace().getAxis());
             d2 = d2.rotateAround(getFace().getAxis());
             d3 = d3.rotateAround(getFace().getAxis());
             d4 = d4.rotateAround(getFace().getAxis());
             break;
         case SOUTH:
-            renderer.addTransformation(new Rotation(-90, 90, 0, Vec3dHelper.CENTER));
+            //renderer.addTransformation(new Rotation(-90, 90, 0, Vec3dHelper.CENTER));
             d1 = d1.rotateAround(getFace().getAxis());
             d2 = d2.rotateAround(getFace().getAxis());
             d3 = d3.rotateAround(getFace().getAxis());
             d4 = d4.rotateAround(getFace().getAxis());
             break;
         case WEST:
-            renderer.addTransformation(new Rotation(0, 0, -90, Vec3dHelper.CENTER));
+            //renderer.addTransformation(new Rotation(0, 0, -90, Vec3dHelper.CENTER));
             break;
         case EAST:
-            renderer.addTransformation(new Rotation(0, 0, 90, Vec3dHelper.CENTER));
+           // renderer.addTransformation(new Rotation(0, 0, 90, Vec3dHelper.CENTER));
             break;
         default:
             break;
@@ -127,34 +129,32 @@ public abstract class PartWireFace extends BPPartFace {
         boolean s3 = shouldRenderConnection(d3);
         boolean s4 = shouldRenderConnection(d4);
 
-        renderer.setColor(color);
+        buffer.putColor4(color);
 
         // Center
-        renderer.renderBox(new Vec3dCube(8 / 16D - width, 0, 8 / 16D - width, 8 / 16D + width, height, 8 / 16D + width),
-                getIcons(null));
+        RenderHelper.drawTesselatedTexturedCube(new Cuboid(8 / 16D - width, 0, 8 / 16D - width, 8 / 16D + width, height, 8 / 16D + width));
         // Sides
         if (s4 || s3) {
             if (s3 || (!s3 && s4 && !s1 && !s2))
-                renderer.renderBox(new Vec3dCube(s3 ? (extendsToCorner(d3) ? -height : 0) : 4 / 16D, 0, 8 / 16D - width, 8 / 16D - width,
-                        height, 8 / 16D + width), getIcons(EnumFacing.WEST));
+                RenderHelper.drawTesselatedTexturedCube(new Cuboid(s3 ? (extendsToCorner(d3) ? -height : 0) : 4 / 16D, 0, 8 / 16D - width, 8 / 16D - width,
+                        height, 8 / 16D + width));
             if (s4 || (s3 && !s4 && !s1 && !s2))
-                renderer.renderBox(new Vec3dCube(8 / 16D + width, 0, 8 / 16D - width, s4 ? 1 + (extendsToCorner(d4) ? height : 0)
-                        : 12 / 16D, height, 8 / 16D + width), getIcons(EnumFacing.EAST));
+                RenderHelper.drawTesselatedTexturedCube(new Cuboid(8 / 16D + width, 0, 8 / 16D - width, s4 ? 1 + (extendsToCorner(d4) ? height : 0)
+                        : 12 / 16D, height, 8 / 16D + width));
             if (s1)
-                renderer.renderBox(new Vec3dCube(8 / 16D - width, 0, s1 ? (extendsToCorner(d1) ? -height : 0) : 4 / 16D, 8 / 16D + width,
-                        height, 8 / 16D - width), getIcons(EnumFacing.NORTH));
+                RenderHelper.drawTesselatedTexturedCube(new Cuboid(8 / 16D - width, 0, s1 ? (extendsToCorner(d1) ? -height : 0) : 4 / 16D, 8 / 16D + width,
+                        height, 8 / 16D - width));
             if (s2)
-                renderer.renderBox(new Vec3dCube(8 / 16D - width, 0, 8 / 16D + width, 8 / 16D + width, height,
-                        s2 ? 1 + (extendsToCorner(d2) ? height : 0) : 12 / 16D), getIcons(EnumFacing.SOUTH));
+                RenderHelper.drawTesselatedTexturedCube(new Cuboid(8 / 16D - width, 0, 8 / 16D + width, 8 / 16D + width, height,
+                        s2 ? 1 + (extendsToCorner(d2) ? height : 0) : 12 / 16D));
         } else {
-            renderer.renderBox(new Vec3dCube(8 / 16D - width, 0, s1 ? (extendsToCorner(d1) ? -height : 0) : 4 / 16D, 8 / 16D + width,
-                    height, 8 / 16D - width), getIcons(EnumFacing.NORTH));
-            renderer.renderBox(new Vec3dCube(8 / 16D - width, 0, 8 / 16D + width, 8 / 16D + width, height,
-                    s2 ? 1 + (extendsToCorner(d2) ? height : 0) : 12 / 16D), getIcons(EnumFacing.SOUTH));
+            RenderHelper.drawTesselatedTexturedCube(new Cuboid(8 / 16D - width, 0, s1 ? (extendsToCorner(d1) ? -height : 0) : 4 / 16D, 8 / 16D + width,
+                    height, 8 / 16D - width));
+            RenderHelper.drawTesselatedTexturedCube(new Cuboid(8 / 16D - width, 0, 8 / 16D + width, 8 / 16D + width, height,
+                    s2 ? 1 + (extendsToCorner(d2) ? height : 0) : 12 / 16D));
         }
-
-        renderer.setIgnoreLighting(false);
-        renderer.setColor(0xFFFFFF);
+        context.setUseLighting(false);
+        buffer.putColor4(0xFFFFFF);
 
         return true;
     }

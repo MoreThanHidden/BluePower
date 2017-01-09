@@ -20,9 +20,7 @@ package com.bluepowermod.item;
 import com.bluepowermod.api.BPApi;
 import com.bluepowermod.api.item.IDatabaseSaveable;
 import com.bluepowermod.init.BPCreativeTabs;
-import com.bluepowermod.part.BPPart;
-import com.bluepowermod.part.PartInfo;
-import com.bluepowermod.part.PartManager;
+import com.bluepowermod.part.*;
 import com.bluepowermod.reference.Refs;
 import net.minecraft.block.SoundType;
 import net.minecraft.client.Minecraft;
@@ -33,17 +31,18 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import uk.co.qmunity.lib.item.ItemMultipart;
+import uk.co.qmunity.lib.item.ItemQLPart;
+import uk.co.qmunity.lib.part.IQLPart;
+import uk.co.qmunity.lib.vec.Vector3;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ItemPart extends ItemMultipart implements IDatabaseSaveable {
+public class ItemPart extends ItemQLPart implements IDatabaseSaveable {
 
     private final PartInfo info;
 
@@ -65,6 +64,11 @@ public class ItemPart extends ItemMultipart implements IDatabaseSaveable {
     public String getUnlocalizedName(ItemStack p_77667_1_) {
 
         return getUnlocalizedName();
+    }
+
+    @Override
+    protected String getModId() {
+        return Refs.MODID;
     }
 
     @Override
@@ -114,20 +118,6 @@ public class ItemPart extends ItemMultipart implements IDatabaseSaveable {
     }
 
     @Override
-    public String getCreatedPartType(ItemStack item, EntityPlayer player, World world, RayTraceResult mop) {
-
-        return null;
-    }
-
-    @Override
-    public BPPart createPart(ItemStack item, EntityPlayer player, World world, RayTraceResult mop) {
-
-        BPPart part = info.create();
-        BPApi.getInstance().loadSilkySettings(part, item);
-        return part;
-    }
-
-    @Override
     public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (!(super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ) == EnumActionResult.SUCCESS))
             return EnumActionResult.PASS;
@@ -136,6 +126,16 @@ public class ItemPart extends ItemMultipart implements IDatabaseSaveable {
             playPlacementSound(pos, PartManager.getExample(player.getHeldItem(hand)).getPlacementSound());
 
         return EnumActionResult.SUCCESS;
+    }
+
+    @Override
+    public IQLPart newPart(World world, BlockPos blockPos, EnumFacing enumFacing, Vector3 vector3, ItemStack item, EntityPlayer entityPlayer) {
+        BPPart part = info.create();
+        if(part instanceof IPartPlacement){
+            ((IPartPlacement) part).placePart(part, world, blockPos, enumFacing, false);
+        }
+        BPApi.getInstance().loadSilkySettings(part, item);
+        return part;
     }
 
     @SideOnly(Side.CLIENT)

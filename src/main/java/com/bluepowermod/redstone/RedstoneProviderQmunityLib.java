@@ -22,19 +22,19 @@ import com.bluepowermod.api.wire.redstone.*;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import uk.co.qmunity.lib.part.IPart;
-import uk.co.qmunity.lib.part.ITilePartHolder;
-import uk.co.qmunity.lib.part.compat.MultipartCompatibility;
+import uk.co.qmunity.lib.part.IPartHolder;
+import uk.co.qmunity.lib.part.IQLPart;
+import uk.co.qmunity.lib.part.MultipartCompat;
 
 public class RedstoneProviderQmunityLib implements IRedstoneProvider {
 
     @Override
     public IRedstoneDevice getRedstoneDeviceAt(World world, BlockPos pos, EnumFacing side, EnumFacing face) {
 
-        ITilePartHolder holder = MultipartCompatibility.getPartHolder(world, pos);
+        IPartHolder holder = MultipartCompat.getHolder(world, pos);
         if (holder != null) {
             boolean foundOnlyFace = holder.getParts().size() > 0;
-            for (IPart p : holder.getParts()) {
+            for (IQLPart p : holder.getParts()) {
                 if (p instanceof IRedstoneDeviceWrapper) {
                     if (p instanceof IFace) {
                         if (((IFace) p).getFace() == face)
@@ -67,10 +67,10 @@ public class RedstoneProviderQmunityLib implements IRedstoneProvider {
     @Override
     public IBundledDevice getBundledDeviceAt(World world, BlockPos pos, EnumFacing side, EnumFacing face) {
 
-        ITilePartHolder holder = MultipartCompatibility.getPartHolder(world, pos);
+        IPartHolder holder = MultipartCompat.getHolder(world, pos);
         if (holder != null) {
             boolean foundOnlyFace = holder.getParts().size() > 0;
-            for (IPart p : holder.getParts()) {
+            for (IQLPart p : holder.getParts()) {
                 if (p instanceof IBundledDeviceWrapper) {
                     if (p instanceof IFace) {
                         if (((IFace) p).getFace() == face)

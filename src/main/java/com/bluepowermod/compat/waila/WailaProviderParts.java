@@ -26,7 +26,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import uk.co.qmunity.lib.part.IPartWAILAProvider;
+import uk.co.qmunity.lib.part.IWailaProviderPart;
 import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 
 import java.util.List;
@@ -44,11 +44,11 @@ public class WailaProviderParts implements IWailaDataProvider {
 
         if (data.getMOP() instanceof QRayTraceResult) {
             QRayTraceResult mop = (QRayTraceResult) data.getMOP();
-            if (mop.getPart() != null && mop.getPart() instanceof IPartWAILAProvider)
-                ((IPartWAILAProvider) mop.getPart()).addWAILABody(l);
+            if (mop.part != null && mop.part instanceof IWailaProviderPart)
+                ((IWailaProviderPart) mop.part).addWAILABody(l);
         }
 
-        // ITilePartHolder h = MultipartCompatibility.getPartHolder(data.getWorld(), data.getPosition().blockX, data.getPosition().blockY,
+        // ITilePartHolder h = MultipartCompat.getPartHolder(data.getWorld(), data.getPosition().blockX, data.getPosition().blockY,
         // data.getPosition().blockZ);
         //
         // if (h == null)
